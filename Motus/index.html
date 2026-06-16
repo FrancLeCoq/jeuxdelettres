@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MOTUS — Le Coq Francis</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="../Dictionnaires/dict_fr.js"></script>
+<script src="../Dictionnaires/dict_en.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+:root{
+  --bg1:#0d0520; --bg2:#1a0840;
+  --gold:#FFD700; --purple:#c084fc; --purple-d:#6d28d9;
+  --green:#16a34a; --green-l:#a3e635;
+  --orange:#d97706; --orange-l:#fcd34d;
+  --cyan:#0ea5e9;
+  --txt:#fff; --muted:#c9aaee;
+  /* Motus tile states */
+  --tile-empty:#2a1052;
+  --tile-border:rgba(120,70,190,0.55);
+  --tile-active:rgba(14,165,233,0.9);
+  --good:#22c55e;          /* vert clair: bien placé */
+  --good-l:#4ade80;
+  --present:#f5c518;       /* jaune: présent mal placé */
+  --present-txt:#dc2626;   /* lettre rouge */
+  --absent:#6d28d9;        /* violet: absente */
+  --absent-d:#4c1d95;      /* violet foncé clavier */
+}
+html,body{height:100%}
+body{
+  background:linear-gradient(160deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;
+  font-family:'Fredoka One',cursive;
+  color:var(--txt);
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:14px 14px calc(14px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; top:-120px; left:50%; transform:translateX(-50%);
+  width:380px; height:380px; border-radius:50%;
+  background:radial-gradient(circle,rgba(120,40,200,0.35),transparent 70%);
+  pointer-events:none; z-index:0;
+}
+.app{width:100%; max-width:440px; position:relative; z-index:1; display:flex; flex-direction:column; align-items:center}
+
+/* HEADER */
+.brand{display:flex; flex-direction:column; align-items:center; margin-bottom:14px; margin-top:4px}
+.brand img{width:96px; height:96px; object-fit:contain; filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6)); animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+.brand h1{font-family:'Bangers',cursive; font-size:42px; letter-spacing:5px; color:var(--gold); text-shadow:0 0 22px rgba(255,215,0,0.55),0 3px 0 rgba(0,0,0,0.35); margin-top:2px; line-height:1}
+.brand .tagline{font-size:11px; color:var(--muted); letter-spacing:1px; margin-top:3px}
+
+.card{width:100%; background:linear-gradient(145deg,rgba(13,5,32,0.95),rgba(30,10,65,0.95)); border:2px solid rgba(180,100,255,0.30); border-radius:24px; padding:22px 18px; box-shadow:0 0 50px rgba(120,40,200,0.35)}
+
+/* fullscreen in game */
+body.playing{padding:0; justify-content:flex-start}
+body.playing .brand{display:none}
+body.playing .app{max-width:480px}
+body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; background:transparent; padding:10px 10px calc(14px + env(safe-area-inset-bottom)); min-height:100vh; display:flex; flex-direction:column}
+
+/* Buttons */
+.menu-btn{width:100%; padding:18px; border:none; border-radius:16px; font-family:'Bangers',cursive; font-size:22px; letter-spacing:2px; color:#fff; cursor:pointer; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:12px; touch-action:manipulation; transition:transform .12s,box-shadow .12s,opacity .12s; position:relative; overflow:hidden}
+.menu-btn:active{transform:scale(0.97)}
+.menu-btn .ico{font-size:24px; line-height:1}
+.menu-btn .lock{position:absolute; right:14px; display:flex; align-items:center; justify-content:center}
+.menu-btn .lock svg{width:22px; height:22px; display:block}
+.lvl-btn .lk svg{width:20px; height:20px; display:block}
+#btnComp{padding-right:44px; font-size:21px}
+#btnWallet{padding-right:44px; padding-top:12px; padding-bottom:12px; font-size:18px}
+.wallet-text{display:flex; flex-direction:column; align-items:center; line-height:1.1}
+.wallet-sub{font-family:'Fredoka One',cursive; font-size:10px; letter-spacing:0.5px; margin-top:3px; opacity:.95}
+.wallet-sub.ok{color:#bbf7d0}
+.wallet-sub.warn{color:#fde68a}
+.btn-comp-green{background:linear-gradient(135deg,#16a34a,#15803d); box-shadow:0 5px 22px rgba(22,163,74,0.45)}
+.btn-comp-orange{background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 5px 22px rgba(217,119,6,0.40)}
+.btn-unique{background:linear-gradient(135deg,#16a34a,#15803d); box-shadow:0 5px 22px rgba(22,163,74,0.45)}
+.btn-wallet{background:linear-gradient(135deg,#0ea5e9,#0284c7); box-shadow:0 5px 22px rgba(14,165,233,0.45)}
+.btn-purple{background:linear-gradient(135deg,#7c3aed,#5b21b6); box-shadow:0 5px 22px rgba(124,58,237,0.45)}
+.btn-neutral{background:rgba(109,40,217,0.25); border:1px solid rgba(168,85,247,0.4); box-shadow:none}
+
+.lang-row{display:flex; justify-content:center; gap:14px; margin-top:6px}
+.flag-btn{width:66px; height:46px; border-radius:12px; cursor:pointer; border:2px solid rgba(168,85,247,0.4); background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; touch-action:manipulation; transition:transform .12s,border-color .12s; overflow:hidden}
+.flag-btn:active{transform:scale(0.92)}
+.flag-btn.active{border-color:var(--gold); box-shadow:0 0 18px rgba(255,215,0,0.45)}
+.flag-btn svg{width:48px; height:32px; border-radius:4px; display:block}
+
+.back-btn{display:flex; align-items:center; gap:6px; width:100%; background:rgba(109,40,217,0.2); border:1px solid rgba(168,85,247,0.4); color:#a78bfa; font-size:14px; font-family:'Fredoka One',cursive; cursor:pointer; margin-bottom:16px; padding:9px 14px; border-radius:10px; touch-action:manipulation; transition:opacity .12s,transform .12s}
+.back-btn:active{opacity:.7; transform:scale(0.98)}
+.back-btn::before{content:'\2190'; font-size:18px; font-weight:bold}
+
+.sec-title{font-family:'Bangers',cursive; font-size:24px; letter-spacing:2px; color:var(--purple); text-align:center; margin-bottom:14px}
+.sec-sub{font-size:11px; color:var(--muted); text-align:center; margin-top:-8px; margin-bottom:16px; line-height:1.5}
+
+.scores-box{margin-top:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.25); border-radius:14px; padding:14px}
+.scores-box .sh{font-family:'Bangers',cursive; letter-spacing:1px; color:var(--gold); font-size:16px; margin-bottom:10px; text-align:center}
+.score-row{display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; margin-bottom:6px; font-size:13px; background:rgba(255,255,255,0.03)}
+.score-row .rank{font-family:'Bangers',cursive; font-size:18px; width:26px}
+.score-row.r1 .rank{color:#FFD700}.score-row.r2 .rank{color:#d1d5db}.score-row.r3 .rank{color:#cd7f32}
+.score-row .val{font-family:'Bangers',cursive; letter-spacing:1px; color:var(--green-l); font-size:16px}
+.score-row .meta{font-size:10px; color:var(--muted)}
+.no-scores{text-align:center; color:var(--muted); font-size:12px; padding:8px}
+
+/* GAME */
+.game-top{display:flex; align-items:center; width:100%; margin-bottom:10px; gap:8px}
+.game-top .lvl-badge{font-family:'Bangers',cursive; letter-spacing:1px; font-size:16px; color:var(--gold); flex:1; text-align:left}
+.game-top .pad-coq{margin-right:-4px}
+.hud{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; width:100%; margin-bottom:12px}
+.hud .chip{background:rgba(255,255,255,0.06); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:6px 12px; font-size:13px; display:flex; align-items:center; gap:6px}
+.hud .chip .lab{font-size:9px; color:var(--muted); letter-spacing:.5px}
+.hud .chip .num{font-family:'Bangers',cursive; font-size:17px; letter-spacing:1px}
+.chip.lives .num{color:#fca5a5}
+.chip.score .num{color:var(--green-l)}
+.chip.time .num{color:var(--cyan)}
+.chip.tries .num{color:var(--orange-l)}
+
+/* Motus board */
+.board-wrap{width:100%; display:flex; justify-content:center; flex:1; align-items:flex-start}
+.mboard{display:grid; gap:6px; width:100%; margin:0 auto}
+.mrow{display:grid; gap:6px}
+.tile{
+  aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
+  font-family:'Bangers',cursive; font-size:clamp(22px,7vw,40px); letter-spacing:1px;
+  background:var(--tile-empty); border:2px solid var(--tile-border); border-radius:10px;
+  color:#fff; text-transform:uppercase; transition:transform .15s; position:relative;
+}
+.tile.cur{border-color:var(--tile-active); box-shadow:0 0 14px rgba(14,165,233,0.5)}
+.tile.filled{border-color:rgba(168,85,247,0.85)}
+.tile.good{background:var(--good); border-color:var(--good-l); color:#fff; box-shadow:0 0 16px rgba(34,197,94,0.6)}
+.tile.present{background:var(--present); border-color:#eab308; color:var(--present-txt)}
+.tile.absent{background:var(--absent); border-color:var(--absent-d); color:#fff; opacity:.92}
+.tile.pop{animation:tpop .18s ease-out}
+@keyframes tpop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.tile.flip{animation:tflip .5s ease forwards}
+@keyframes tflip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+.tile.shake{animation:rowshake .4s}
+@keyframes rowshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* AZERTY keyboard */
+.kbd{width:100%; max-width:480px; margin:14px auto 0; display:flex; flex-direction:column; gap:6px}
+.krow{display:flex; gap:5px; justify-content:center}
+.key{
+  flex:1; min-width:0; height:48px; border-radius:9px; border:1.5px solid rgba(168,85,247,0.4);
+  background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(91,33,182,0.4)); color:#fff;
+  font-family:'Bangers',cursive; font-size:18px; letter-spacing:.5px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; touch-action:manipulation;
+  transition:transform .08s,background .1s; padding:0;
+}
+.key:active{transform:scale(0.9)}
+.key.wide{flex:1.6; font-size:13px}
+.key.good{background:var(--good); border-color:var(--good-l)}
+.key.present{background:var(--present); border-color:#eab308; color:var(--present-txt)}
+.key.absent{background:var(--absent-d); border-color:#3b0764; color:#9d7bd8; opacity:.85}
+
+/* level list */
+.lvl-btn{width:100%; padding:16px; border:none; border-radius:14px; margin-bottom:11px; font-family:'Bangers',cursive; font-size:19px; letter-spacing:2px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:space-between; touch-action:manipulation; transition:transform .1s; position:relative}
+.lvl-btn:active{transform:scale(0.97)}
+.lvl-btn .ll{display:flex; align-items:center; gap:10px}
+.lvl-btn .stars{font-size:13px; letter-spacing:1px}
+.lvl-btn.unlocked{background:linear-gradient(135deg,#16a34a,#15803d); box-shadow:0 4px 18px rgba(22,163,74,0.4)}
+.lvl-btn.lockedb{background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 18px rgba(217,119,6,0.35)}
+.lvl-btn .lk{font-size:18px}
+
+/* floating coq next to keyboard */
+.coq-bar{display:none}
+.pad-coq{position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; width:58px; height:58px; overflow:visible; flex-shrink:0}
+.pad-coq img{width:auto; height:100%; max-width:100%; object-fit:contain; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.6)); animation:bob 3.6s ease-in-out infinite; pointer-events:none}
+.pad-coq img.coq-press{animation:coqPress .35s ease-out}
+@keyframes coqPress{0%{transform:scale(1)}35%{transform:scale(0.82) rotate(-4deg)}70%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1)}}
+.pad-coq .hearts{position:absolute; inset:0; pointer-events:none; overflow:visible}
+.pad-coq .heart{position:absolute; bottom:30%; transform:translateX(-50%); opacity:0; animation:heartFly 1.4s ease-out forwards}
+@keyframes heartFly{0%{opacity:0; transform:translate(-50%,0) scale(.4)}15%{opacity:1; transform:translate(-50%,-8px) scale(1)}100%{opacity:0; transform:translate(-50%,-70px) scale(1.1)}}
+
+/* OVERLAYS */
+.overlay{position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(5,2,15,0.82); backdrop-filter:blur(6px)}
+.overlay.show{display:flex; animation:fadein .25s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal{width:100%; max-width:340px; text-align:center; background:linear-gradient(145deg,rgba(13,5,32,0.98),rgba(30,10,65,0.98)); border:2px solid rgba(180,100,255,0.4); border-radius:24px; padding:26px 22px; box-shadow:0 0 60px rgba(120,40,200,0.5); animation:pop .3s cubic-bezier(.2,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.modal img{width:120px; height:120px; object-fit:contain; margin-bottom:10px; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.6))}
+.modal h2{font-family:'Bangers',cursive; font-size:30px; letter-spacing:2px; margin-bottom:8px}
+.modal h2.win{color:var(--green-l); text-shadow:0 0 20px rgba(163,230,53,0.5)}
+.modal h2.lose{color:#fca5a5; text-shadow:0 0 20px rgba(239,68,68,0.4)}
+.modal h2.locked{color:var(--orange-l)}
+.modal p{font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:18px}
+.modal p b{color:var(--gold)}
+.modal .reveal-word{font-family:'Bangers',cursive; font-size:24px; letter-spacing:3px; color:var(--good-l); margin:4px 0 12px}
+.modal .modal-score{font-family:'Bangers',cursive; font-size:26px; color:var(--green-l); margin:6px 0 14px; letter-spacing:1px}
+
+.life-flash{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; pointer-events:none}
+.life-flash.show{display:flex}
+.life-flash img{width:160px; height:160px; object-fit:contain; animation:lifepop .9s ease-out forwards; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.6))}
+@keyframes lifepop{0%{transform:scale(.3) translateY(40px);opacity:0}25%{transform:scale(1.1) translateY(0);opacity:1}70%{transform:scale(1) translateY(0);opacity:1}100%{transform:scale(.9) translateY(-30px);opacity:0}}
+.life-flash .lf-txt{position:absolute; bottom:30%; font-family:'Bangers',cursive; font-size:28px; color:#fca5a5; letter-spacing:2px; text-shadow:0 0 20px rgba(239,68,68,0.6); animation:lifepop .9s ease-out forwards}
+
+.toast{position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(217,119,6,0.95); color:#fff; padding:12px 18px; border-radius:14px; font-size:13px; z-index:70; opacity:0; transition:opacity .25s,transform .25s; max-width:90%; text-align:center; box-shadow:0 6px 24px rgba(0,0,0,0.5); pointer-events:none}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- BRAND HEADER -->
+  <div class="brand">
+    <img alt="Francis" id="brandImg">
+    <h1>MOTUS</h1>
+    <div class="tagline" id="tagline">LE COQ FRANCIS</div>
+  </div>
+
+  <!-- MENU -->
+  <div class="card" id="screenMenu">
+    <button class="menu-btn btn-unique" onclick="show('screenUnique')">
+      <span class="ico">🎯</span><span id="lblUnique">GRILLE LIBRE</span>
+    </button>
+    <button class="menu-btn btn-comp-orange" id="btnComp" onclick="openCompetition()">
+      <span class="ico">🏆</span><span id="lblComp">COMPÉTITION</span>
+      <span class="lock" id="compLock"></span>
+    </button>
+    <button class="menu-btn btn-wallet" id="btnWallet" onclick="goConnectWallet()">
+      <span class="ico">👛</span>
+      <span class="wallet-text"><span id="lblWallet">CONNECT WALLET</span><span class="wallet-sub" id="walletSub"></span></span>
+      <span class="lock" id="walletLock"></span>
+    </button>
+    <div class="lang-row">
+      <button class="flag-btn" id="flagFR" onclick="setLang('fr')" aria-label="Français">
+        <svg viewBox="0 0 3 2"><rect width="1" height="2" x="0" fill="#0055A4"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#EF4135"/></svg>
+      </button>
+      <button class="flag-btn" id="flagEN" onclick="setLang('en')" aria-label="English">
+        <svg viewBox="0 0 60 30"><clipPath id="ukc"><rect width="60" height="30"/></clipPath><g clip-path="url(#ukc)"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30M60,0 0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 30,30M0,15 60,15" stroke="#fff" stroke-width="10"/><path d="M30,0 30,30M0,15 60,15" stroke="#C8102E" stroke-width="6"/></g></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- COMPETITION SUBMENU -->
+  <div class="card hidden" id="screenComp">
+    <button class="back-btn" id="backComp1" onclick="show('screenMenu')">Retour</button>
+    <div class="sec-title">🏆 <span id="compTitle">COMPÉTITION</span></div>
+    <div class="sec-sub" id="compSub">Gravis les échelons et gagne des $FRANC virtuels !</div>
+    <button class="menu-btn btn-comp-green" id="btnResume" onclick="resumeCompetition()" style="display:none">
+      <span class="ico">▶️</span><span id="lblResume">REPRENDRE</span>
+    </button>
+    <button class="menu-btn btn-purple" onclick="newCompetition()">
+      <span class="ico">🆕</span><span id="lblNew">NOUVELLE PARTIE</span>
+    </button>
+    <div class="scores-box">
+      <div class="sh" id="lblBest">🏅 TOP 3 SCORES</div>
+      <div id="scoresList"></div>
+    </div>
+  </div>
+
+  <!-- FREE GRID LEVELS -->
+  <div class="card hidden" id="screenUnique">
+    <button class="back-btn" id="backUnique" onclick="show('screenMenu')">Retour</button>
+    <div class="sec-title">🎯 <span id="uniqueTitle">GRILLE LIBRE</span></div>
+    <div class="sec-sub" id="uniqueSub">Choisis ta difficulté</div>
+    <div id="levelList"></div>
+  </div>
+
+  <!-- GAME -->
+  <div class="card hidden" id="screenGame">
+    <div class="game-top">
+      <button class="back-btn" id="backGame" style="margin-bottom:0;width:auto;padding:8px 12px" onclick="quitGame()">Menu</button>
+      <span class="lvl-badge" id="gameLvl"></span>
+      <div class="pad-coq" id="padCoq" onclick="tapCoq()">
+        <img id="miniPilote" alt="Francis"><span class="hearts" id="coqHearts"></span>
+      </div>
+    </div>
+    <div class="hud" id="hud"></div>
+    <div class="board-wrap"><div class="mboard" id="board"></div></div>
+    <div class="kbd" id="kbd"></div>
+  </div>
+
+</div>
+
+<!-- Overlays -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <img id="modalImg" alt="">
+    <h2 id="modalTitle"></h2>
+    <div class="reveal-word hidden" id="modalWord"></div>
+    <div class="modal-score hidden" id="modalScore"></div>
+    <p id="modalText"></p>
+    <button class="menu-btn btn-purple" style="margin-bottom:8px" id="modalBtn1" onclick="modalAction1()"></button>
+    <button class="menu-btn btn-neutral" id="modalBtn2" onclick="modalAction2()"></button>
+  </div>
+</div>
+
+<div class="life-flash" id="lifeFlash">
+  <img id="lifeImg" alt="">
+  <div class="lf-txt" id="lifeTxt">-1 ❤️</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const IMG = {
+  coq_pilote:    "../Visuels/coq_pilote.png",
+  coq_coeur:     "../Visuels/coq_coeur.png",
+  coq_triste:    "../Visuels/coq_triste.png",
+  coq_stupefait: "../Visuels/coq_stupefait.png"
+};
+/* Dictionnaire charge depuis ../Dictionnaires/dict_fr.js & dict_en.js (voir loader plus bas) */;
+/* =====================================================================
+   LE COQ FRANCIS — MOTUS
+   ===================================================================== */
+const WALLET_PAGE = 'https://franclecoq.github.io/Wallet/connect-wallet.html';
+const BACKEND     = 'https://mubqtnqulpyehkgubhnh.supabase.co/functions/v1';
+const COMP_LIVES  = 3;
+const tg = window.Telegram?.WebApp;
+
+/* ---------- i18n ---------- */
+const I18N = {
+  fr:{
+    tagline:'LE COQ FRANCIS', comp:'COMPÉTITION', unique:'GRILLE LIBRE', wallet:'CONNECT WALLET',
+    compTitle:'COMPÉTITION', compSub:'Enchaîne les mots et gagne des $FRANC virtuels !',
+    resume:'REPRENDRE', neww:'NOUVELLE PARTIE', best:'🏅 TOP 3 SCORES',
+    uniqueTitle:'GRILLE LIBRE', uniqueSub:'Choisis ta difficulté',
+    menu:'Menu', retour:'Retour',
+    lives:'VIES', score:'SCORE', time:'TEMPS', tries:'ESSAIS', level:'NIVEAU',
+    noScores:'Aucun score pour le moment.\nJoue pour entrer dans le TOP 3 !',
+    lvl:['Facile','Moyen','Dur'], lvlInfo:['4 lettres','5 lettres','6 lettres'],
+    lockedTitle:'RÉSERVÉ AUX HOLDERS',
+    lockedComp:'Le mode <b>Compétition</b> est réservé aux détenteurs de <b>$FRANC</b> (ou achat d\'étoile).<br>Connecte ton wallet pour débloquer !',
+    lockedLvl:'Ce niveau est réservé aux détenteurs de <b>$FRANC</b> (ou achat d\'étoile).<br>Connecte ton wallet pour le débloquer !',
+    btnConnect:'👛 Connecter le wallet', btnClose:'Fermer',
+    bravo:'BRAVO !', winText:'Cocorico ! Tu as trouvé le mot !',
+    gameOver:'GAME OVER', gameOverText:'Plus de vies ! Mais quel parcours, champion !',
+    loseTextU:'Raté ! Le mot était :',
+    theWordWas:'Le mot était :',
+    nextWord:'Mot suivant', replay:'Rejouer', backMenu:'Retour au menu', toMenu:'Menu',
+    notFull:'⚠️ Complète le mot avant de valider',
+    notInList:'❌ Mot inconnu — ligne perdue !',
+    walletFranc:'✅ <b>$FRANC détecté !</b>', walletNo:'⚠️ Wallet connecté — aucun $FRANC',
+    confirmQuit:'Quitter la partie ? La progression sera sauvegardée.',
+    wConnected:'✅ Connecté', wNoFranc:'⚠️ Connecté — aucun $FRANC', wNotConnected:'Non connecté',
+    newScore:'🎉 Score sauvegardé', francWon:'$FRANC virtuels gagnés',
+    firstLetter:'La 1ʳᵉ lettre est offerte !'
+  },
+  en:{
+    tagline:'LE COQ FRANCIS', comp:'COMPETITION', unique:'FREE GRID', wallet:'CONNECT WALLET',
+    compTitle:'COMPETITION', compSub:'Chain words and earn virtual $FRANC!',
+    resume:'RESUME', neww:'NEW GAME', best:'🏅 TOP 3 SCORES',
+    uniqueTitle:'FREE GRID', uniqueSub:'Choose your difficulty',
+    menu:'Menu', retour:'Back',
+    lives:'LIVES', score:'SCORE', time:'TIME', tries:'TRIES', level:'LEVEL',
+    noScores:'No score yet.\nPlay to enter the TOP 3!',
+    lvl:['Easy','Medium','Hard'], lvlInfo:['4 letters','5 letters','6 letters'],
+    lockedTitle:'HOLDERS ONLY',
+    lockedComp:'<b>Competition</b> mode is reserved for <b>$FRANC</b> holders (or star purchase).<br>Connect your wallet to unlock!',
+    lockedLvl:'This level is reserved for <b>$FRANC</b> holders (or star purchase).<br>Connect your wallet to unlock!',
+    btnConnect:'👛 Connect wallet', btnClose:'Close',
+    bravo:'BRAVO!', winText:'Cock-a-doodle-doo! You found the word!',
+    gameOver:'GAME OVER', gameOverText:'Out of lives! What a run, champion!',
+    loseTextU:'Missed! The word was:',
+    theWordWas:'The word was:',
+    nextWord:'Next word', replay:'Replay', backMenu:'Back to menu', toMenu:'Menu',
+    notFull:'⚠️ Complete the word before validating',
+    notInList:'❌ Unknown word — line lost!',
+    walletFranc:'✅ <b>$FRANC detected!</b>', walletNo:'⚠️ Wallet connected — no $FRANC',
+    confirmQuit:'Quit the game? Progress will be saved.',
+    wConnected:'✅ Connected', wNoFranc:'⚠️ Connected — no $FRANC', wNotConnected:'Not connected',
+    newScore:'🎉 Score saved', francWon:'virtual $FRANC earned',
+    firstLetter:'The 1st letter is given!'
+  }
+};
+let lang = localStorage.getItem('flc_lang') || 'fr';
+function t(k){return I18N[lang][k]}
+
+/* ---------- Difficulty config ----------
+   0 Facile (4 lettres), 1 Moyen (5), 2 Dur (6)
+   Facile = libre d'accès illimité pour tous (holders ou non).
+   Moyen & Dur = holderOnly. */
+const LEVELS = [
+  {name:0, len:4, tries:6, holderOnly:false, stars:'⭐'},
+  {name:1, len:5, tries:6, holderOnly:true,  stars:'⭐⭐'},
+  {name:2, len:6, tries:6, holderOnly:true,  stars:'⭐⭐⭐'},
+];
+
+/* ---------- Holder state ---------- */
+let isHolder = JSON.parse(localStorage.getItem('flc_holder') || 'false');
+let francBalance = Number(localStorage.getItem('flc_balance') || 0);
+let unlockReason = localStorage.getItem('flc_reason') || null;
+let walletLinked = JSON.parse(localStorage.getItem('flc_walletLinked') || 'false');
+
+/* ---------- Competition $FRANC bank ---------- */
+const GRID_REWARD = 200;   // +200 $FRANC per word found
+function getFranc(){
+  const stored=localStorage.getItem('flc_compPoints');
+  if(stored===null){ localStorage.setItem('flc_compPoints','200'); return 200; }
+  return Math.max(0, parseInt(stored,10)||0);
+}
+function setFranc(v){ localStorage.setItem('flc_compPoints', String(Math.max(0, Math.round(v)))); }
+function addFranc(delta){ const nv=Math.max(0, getFranc()+delta); setFranc(nv); return nv; }
+
+/* =====================================================================
+   WORD HELPERS
+   ===================================================================== */
+function curDict(){ return lang==="en" ? window.DICT_EN : window.DICT_FR; }
+function pickWord(len){
+  const D=curDict();
+  const w = D && D.pick ? D.pick(len) : null;
+  return w || (lang==="en"?"WORD":"MOTU");
+}
+function isValidWord(w){
+  const D=curDict();
+  return D && D.isValid ? D.isValid(w) : true;
+}
+
+/* =====================================================================
+   GAME STATE
+   ===================================================================== */
+let G = null;
+function freshGame(mode, levelIndex){
+  const lv = LEVELS[levelIndex];
+  const word = pickWord(lv.len);
+  return {
+    mode, levelIndex,
+    word,
+    len: lv.len,
+    maxTries: lv.tries,
+    guesses: [],          // array of {letters:[], result:[]}
+    current: '',          // current typed letters (without the fixed first letter prefix logic)
+    row: 0,
+    firstLetter: word[0], // Motus: first letter revealed
+    keyState: {},         // letter -> 'good'|'present'|'absent'
+    finished:false, won:false,
+    startTime:Date.now(), elapsed:0,
+    lives: mode==='comp'?COMP_LIVES:null,
+    francEarned: mode==='comp'?0:0,
+  };
+}
+let timerInt=null;
+
+/* =====================================================================
+   SCREEN MGMT
+   ===================================================================== */
+const SCREENS=['screenMenu','screenComp','screenUnique','screenGame'];
+function show(id){
+  SCREENS.forEach(s=>document.getElementById(s).classList.toggle('hidden', s!==id));
+  document.body.classList.toggle('playing', id==='screenGame');
+  if(id!=='screenGame'){stopTimer();}
+  window.scrollTo(0,0);
+}
+
+/* =====================================================================
+   LANGUAGE
+   ===================================================================== */
+function setLang(l){
+  lang=l; localStorage.setItem('flc_lang',l);
+  document.getElementById('flagFR').classList.toggle('active', l==='fr');
+  document.getElementById('flagEN').classList.toggle('active', l==='en');
+  applyLang();
+}
+function applyLang(){
+  document.getElementById('tagline').textContent=t('tagline');
+  document.getElementById('lblComp').textContent=t('comp');
+  document.getElementById('lblUnique').textContent=t('unique');
+  document.getElementById('lblWallet').textContent=t('wallet');
+  document.getElementById('compTitle').textContent=t('compTitle');
+  document.getElementById('compSub').textContent=t('compSub');
+  document.getElementById('lblResume').textContent=t('resume');
+  document.getElementById('lblNew').textContent=t('neww');
+  document.getElementById('lblBest').textContent=t('best');
+  document.getElementById('uniqueTitle').textContent=t('uniqueTitle');
+  document.getElementById('uniqueSub').textContent=t('uniqueSub');
+  document.getElementById('backComp1').textContent=t('retour');
+  document.getElementById('backUnique').textContent=t('retour');
+  document.getElementById('backGame').textContent=t('menu');
+  renderScores(); renderLevelList(); renderCompLock(); renderWalletStatus();
+}
+
+/* =====================================================================
+   WALLET / HOLDER DETECTION
+   ===================================================================== */
+async function detectHolder(){
+  if(tg?.initData){
+    try{
+      const res=await fetch(BACKEND+'/check-franc',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({initData:tg.initData})
+      });
+      const d=await res.json();
+      walletLinked = !!(d && d.walletLinked);
+      isHolder = !!(d && (d.unlocked ?? (d.walletLinked && d.hasFranc)));
+      unlockReason = (d && d.reason) || (isHolder ? 'solana' : null);
+      francBalance = isHolder ? Number(d.balance || 0) : 0;
+      localStorage.setItem('flc_holder',JSON.stringify(isHolder));
+      localStorage.setItem('flc_balance',String(francBalance));
+      localStorage.setItem('flc_walletLinked',JSON.stringify(walletLinked));
+      localStorage.setItem('flc_reason', unlockReason || '');
+    }catch(e){}
+  }
+  renderCompLock(); renderWalletStatus(); renderLevelList();
+}
+
+function renderWalletStatus(){
+  const sub=document.getElementById('walletSub');
+  const lock=document.getElementById('walletLock');
+  const btn=document.getElementById('btnWallet');
+  if(!sub||!lock||!btn)return;
+  btn.classList.remove('btn-wallet','btn-comp-green','btn-comp-orange');
+  if(isHolder){
+    lock.innerHTML=lockSvg(true);
+    btn.classList.add('btn-comp-green');
+    sub.className='wallet-sub ok';
+    if(unlockReason==='stars'){ sub.textContent='Unlocked via ⭐'; }
+    else { const sym = unlockReason==='ton' ? '💎' : '◎'; const bal = francBalance ? Number(francBalance).toLocaleString() : '?'; sub.textContent=`${t('wConnected')} ${sym} · ${bal} $FRANC`; }
+  } else if(walletLinked){
+    sub.className='wallet-sub warn'; sub.textContent=t('wNoFranc'); lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
+  } else {
+    sub.className='wallet-sub warn'; sub.textContent=t('wNotConnected'); lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
+  }
+}
+
+function lockSvg(open){
+  if(open){
+    return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="unlocked">
+      <path d="M7 10V7a5 5 0 0 1 9.6-2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+      <rect x="4" y="10" width="14" height="10" rx="2.5" fill="#ffffff"/>
+      <circle cx="11" cy="14.5" r="1.6" fill="#15803d"/>
+      <rect x="10.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#15803d"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="locked">
+    <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4.5" y="10" width="15" height="10" rx="2.5" fill="#ffffff"/>
+    <circle cx="12" cy="14.5" r="1.6" fill="#b45309"/>
+    <rect x="11.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#b45309"/></svg>`;
+}
+
+function renderCompLock(){
+  const btn=document.getElementById('btnComp');
+  const lock=document.getElementById('compLock');
+  if(isHolder){ btn.classList.remove('btn-comp-orange'); btn.classList.add('btn-comp-green'); lock.innerHTML=lockSvg(true); }
+  else { btn.classList.remove('btn-comp-green'); btn.classList.add('btn-comp-orange'); lock.innerHTML=lockSvg(false); }
+}
+
+function goConnectWallet(){ window.location.href=WALLET_PAGE; }
+
+/* =====================================================================
+   COMPETITION
+   ===================================================================== */
+/* Sequence: 2x Facile (4), then 2x Moyen (5), then Dur (6) until loss. */
+function compLevelForStep(step){
+  if(step<2) return 0;     // 2 faciles
+  if(step<4) return 1;     // 2 moyens
+  return 2;                // dur en boucle
+}
+function openCompetition(){
+  if(!isHolder){ showLockModal('comp'); return; }
+  const saved=loadCompSave();
+  document.getElementById('btnResume').style.display = saved? 'flex':'none';
+  renderScores();
+  show('screenComp');
+}
+function newCompetition(){
+  clearCompSave();
+  G=freshGame('comp', 0);
+  G.step=0;
+  startGame();
+}
+function resumeCompetition(){
+  const saved=loadCompSave();
+  if(!saved){newCompetition();return;}
+  G=saved;
+  G.startTime=Date.now()-(G.elapsed||0);
+  startGame();
+}
+function loadCompSave(){ try{const s=localStorage.getItem('flc_compSave'); return s?JSON.parse(s):null;}catch(e){return null;} }
+function saveComp(){ if(!G||G.mode!=='comp')return; localStorage.setItem('flc_compSave',JSON.stringify(G)); }
+function clearCompSave(){localStorage.removeItem('flc_compSave');}
+
+/* ---- Scores (top 3) ---- */
+function getScores(){try{return JSON.parse(localStorage.getItem('flc_scores')||'[]');}catch(e){return [];}}
+function saveScore(total, wordsFound, franc){
+  const arr=getScores();
+  arr.push({score:total, words:wordsFound, franc, date:Date.now()});
+  arr.sort((a,b)=>b.score-a.score);
+  localStorage.setItem('flc_scores',JSON.stringify(arr.slice(0,3)));
+}
+function renderScores(){
+  const box=document.getElementById('scoresList');
+  const arr=getScores();
+  if(arr.length===0){box.innerHTML=`<div class="no-scores">${t('noScores').replace('\n','<br>')}</div>`;return;}
+  const medals=['🥇','🥈','🥉'];
+  box.innerHTML=arr.map((s,i)=>{
+    const d=new Date(s.date); const ds=d.toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'2-digit',month:'2-digit'});
+    const wlabel = lang==='fr' ? 'mot' : 'word';
+    return `<div class="score-row r${i+1}">
+      <span class="rank">${medals[i]}</span>
+      <span style="flex:1">
+        <span class="val">🪙 ${(s.franc||s.score).toLocaleString()}</span>
+        <span class="meta"> $FRANC · ${s.words} ${wlabel}${s.words>1?'s':''} · ${ds}</span>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+/* =====================================================================
+   FREE GRID LEVELS
+   ===================================================================== */
+function renderLevelList(){
+  const list=document.getElementById('levelList');
+  list.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const unlocked = !lv.holderOnly || isHolder;
+    const btn=document.createElement('button');
+    btn.className='lvl-btn '+(unlocked?'unlocked':'lockedb');
+    btn.innerHTML=`<span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]} · ${t('lvlInfo')[i]}</span>
+      <span class="lk">${lockSvg(unlocked)}</span>`;
+    btn.onclick=()=>{
+      if(!unlocked){showLockModal('lvl');return;}
+      G=freshGame('unique',i);
+      startGame();
+    };
+    list.appendChild(btn);
+  });
+}
+
+/* =====================================================================
+   START / RENDER GAME
+   ===================================================================== */
+function startGame(){
+  resetMiniPilot();
+  buildBoard();
+  buildKbd();
+  renderHUD();
+  renderBoard();
+  show('screenGame');
+  startTimer();
+  // Motus: prefill first letter into current guess
+  G.current = G.firstLetter;
+  renderBoard();
+}
+
+function buildBoard(){
+  const b=document.getElementById('board');
+  b.innerHTML='';
+  const cols = `repeat(${G.len},1fr)`;
+  // limit tile size so board fits with keyboard
+  const maxW = Math.min(440, G.len*64);
+  b.style.maxWidth = maxW+'px';
+  b.style.gridTemplateColumns = '1fr';
+  for(let r=0;r<G.maxTries;r++){
+    const row=document.createElement('div');
+    row.className='mrow'; row.dataset.r=r;
+    row.style.gridTemplateColumns=cols;
+    for(let c=0;c<G.len;c++){
+      const tile=document.createElement('div');
+      tile.className='tile'; tile.dataset.r=r; tile.dataset.c=c;
+      row.appendChild(tile);
+    }
+    b.appendChild(row);
+  }
+}
+
+const AZERTY = [
+  ['A','Z','E','R','T','Y','U','I','O','P'],
+  ['Q','S','D','F','G','H','J','K','L','M'],
+  ['ENT','W','X','C','V','B','N','DEL']
+];
+function buildKbd(){
+  const k=document.getElementById('kbd');
+  k.innerHTML='';
+  AZERTY.forEach(rowKeys=>{
+    const kr=document.createElement('div'); kr.className='krow';
+    rowKeys.forEach(key=>{
+      const el=document.createElement('button');
+      el.className='key';
+      if(key==='ENT'){ el.classList.add('wide'); el.textContent='⏎'; el.onclick=submitGuess; }
+      else if(key==='DEL'){ el.classList.add('wide'); el.innerHTML='⌫'; el.onclick=delLetter; }
+      else { el.textContent=key; el.dataset.k=key; el.onclick=()=>typeLetter(key); }
+      kr.appendChild(el);
+    });
+    k.appendChild(kr);
+  });
+  refreshKbd();
+}
+function refreshKbd(){
+  document.querySelectorAll('#kbd .key[data-k]').forEach(el=>{
+    el.classList.remove('good','present','absent');
+    const st=G.keyState[el.dataset.k];
+    if(st)el.classList.add(st);
+  });
+}
+
+function renderHUD(){
+  const hud=document.getElementById('hud');
+  document.getElementById('gameLvl').textContent=`${t('level')}: ${t('lvl')[G.levelIndex]} ${LEVELS[G.levelIndex].stars}`;
+  let chips=`<div class="chip time"><span class="lab">${t('time')}</span><span class="num" id="hudTime">0:00</span></div>`;
+  chips+=`<div class="chip tries"><span class="lab">${t('tries')}</span><span class="num" id="hudTries">${G.row+1}/${G.maxTries}</span></div>`;
+  if(G.mode==='comp'){
+    chips+=`<div class="chip score"><span class="lab">$FRANC</span><span class="num" id="hudScore">0</span></div>`;
+    chips+=`<div class="chip lives"><span class="lab">${t('lives')}</span><span class="num" id="hudLives">${G.lives} ❤️</span></div>`;
+  }
+  hud.innerHTML=chips;
+  updateHUD();
+}
+function updateHUD(){
+  G.elapsed=Date.now()-G.startTime;
+  const ts=Math.floor(G.elapsed/1000);
+  const mm=(ts/60)|0, ss=ts%60;
+  const te=document.getElementById('hudTime'); if(te)te.textContent=`${mm}:${String(ss).padStart(2,'0')}`;
+  const tr=document.getElementById('hudTries'); if(tr)tr.textContent=`${Math.min(G.row+1,G.maxTries)}/${G.maxTries}`;
+  if(G.mode==='comp'){
+    const se=document.getElementById('hudScore'); if(se)se.textContent=getFranc().toLocaleString();
+    const le=document.getElementById('hudLives'); if(le)le.textContent=`${G.lives} ❤️`;
+  }
+}
+
+function renderBoard(){
+  // render past guesses
+  G.guesses.forEach((g,r)=>{
+    for(let c=0;c<G.len;c++){
+      const tile=tileEl(r,c);
+      tile.textContent=g.letters[c]||'';
+      tile.className='tile '+(g.result[c]||'');
+    }
+  });
+  // render current row
+  const r=G.row;
+  if(r<G.maxTries){
+    for(let c=0;c<G.len;c++){
+      const tile=tileEl(r,c);
+      const ch=G.current[c]||'';
+      tile.textContent=ch;
+      tile.className='tile'+(ch?' filled':'')+(c===G.current.length?' cur':'');
+    }
+  }
+}
+function tileEl(r,c){return document.querySelector(`#board .tile[data-r="${r}"][data-c="${c}"]`);}
+
+/* =====================================================================
+   INPUT
+   ===================================================================== */
+function typeLetter(ch){
+  if(G.finished)return;
+  if(G.current.length>=G.len)return;
+  G.current+=ch;
+  const c=G.current.length-1;
+  renderBoard();
+  const tile=tileEl(G.row,c);
+  if(tile){tile.classList.remove('pop'); void tile.offsetWidth; tile.classList.add('pop');}
+  persist();
+}
+function delLetter(){
+  if(G.finished)return;
+  // never delete below the offered first letter
+  if(G.current.length<=1)return;
+  G.current=G.current.slice(0,-1);
+  renderBoard();
+  persist();
+}
+
+function submitGuess(){
+  if(G.finished)return;
+  if(G.current.length<G.len){ toast(t('notFull')); shakeRow(); return; }
+  const guess=G.current.toUpperCase();
+  const unknown = !isValidWord(guess);
+
+  // Unknown word: the line is LOST. We still consume the try, but give no
+  // colour hints (all 'absent') so an invented word can't leak the solution.
+  const result = unknown ? new Array(G.len).fill('absent') : evalGuess(guess, G.word);
+  if(unknown){ toast(t('notInList')); if(navigator.vibrate)navigator.vibrate(120); }
+
+  G.guesses.push({letters:guess.split(''), result});
+  // update key states (only for real evaluated guesses)
+  if(!unknown){
+    for(let i=0;i<G.len;i++){
+      const ch=guess[i], st=result[i];
+      const prev=G.keyState[ch];
+      if(st==='good' || (st==='present'&&prev!=='good') || (st==='absent'&&!prev)) G.keyState[ch]=st;
+    }
+  }
+  // animate flip
+  for(let c=0;c<G.len;c++){
+    const tile=tileEl(G.row,c);
+    tile.style.animationDelay=(c*80)+'ms';
+    tile.classList.add('flip');
+  }
+  refreshKbd();
+  renderBoard();
+
+  const won = !unknown && result.every(x=>x==='good');
+  G.row++;
+  updateHUD();
+  persist();
+
+  if(won){ setTimeout(()=>onWin(), 600); return; }
+  if(G.row>=G.maxTries){ setTimeout(()=>onRowsExhausted(), 600); return; }
+  // next row: prefill first letter again (Motus convention)
+  G.current=G.firstLetter;
+  setTimeout(()=>renderBoard(), 600);
+}
+
+/* Motus evaluation with duplicate handling */
+function evalGuess(guess, target){
+  const n=guess.length;
+  const res=new Array(n).fill('absent');
+  const counts={};
+  for(const ch of target) counts[ch]=(counts[ch]||0)+1;
+  // pass 1: good
+  for(let i=0;i<n;i++){ if(guess[i]===target[i]){res[i]='good'; counts[guess[i]]--;} }
+  // pass 2: present
+  for(let i=0;i<n;i++){
+    if(res[i]==='good')continue;
+    const ch=guess[i];
+    if(counts[ch]>0){res[i]='present'; counts[ch]--;}
+  }
+  return res;
+}
+
+function shakeRow(){
+  const r=G.row;
+  for(let c=0;c<G.len;c++){const tile=tileEl(r,c); if(tile){tile.classList.remove('shake'); void tile.offsetWidth; tile.classList.add('shake');}}
+  if(navigator.vibrate)navigator.vibrate(80);
+}
+
+/* =====================================================================
+   WIN / LOSE
+   ===================================================================== */
+function onWin(){
+  stopTimer();
+  G.elapsed=Date.now()-G.startTime;
+  setMiniCoq(IMG.coq_coeur, 30000);
+  if(G.mode==='comp'){
+    addFranc(GRID_REWARD);
+    G.francEarned=(G.francEarned||0)+GRID_REWARD;
+    persist();
+    showModal({
+      img:IMG.coq_coeur, cls:'win', title:t('bravo'),
+      word:G.word, score:`+${GRID_REWARD} $FRANC`,
+      text:t('winText'),
+      btn1:t('nextWord'), btn2:t('toMenu'),
+      action1:()=>{ closeModal(); compNextWord(); },
+      action2:()=>finishCompetition()
+    });
+  } else {
+    showModal({
+      img:IMG.coq_coeur, cls:'win', title:t('bravo'),
+      word:G.word, text:t('winText'),
+      btn1:t('replay'), btn2:t('backMenu'),
+      action1:()=>{G=freshGame('unique',G.levelIndex); closeModal(); startGame();},
+      action2:()=>{closeModal(); show('screenUnique');}
+    });
+  }
+}
+
+function onRowsExhausted(){
+  // out of tries on this word
+  if(G.mode==='comp'){ loseLifeComp(); }
+  else { onLoseUnique(); }
+}
+
+function onLoseUnique(){
+  stopTimer();
+  G.finished=true;
+  setMiniCoq(IMG.coq_triste, 30000);
+  showModal({
+    img:IMG.coq_triste, cls:'lose', title:t('gameOver'),
+    word:G.word, wordLabel:t('loseTextU'),
+    text:'',
+    btn1:t('replay'), btn2:t('backMenu'),
+    action1:()=>{G=freshGame('unique',G.levelIndex); closeModal(); startGame();},
+    action2:()=>{closeModal(); show('screenUnique');}
+  });
+}
+
+/* competition: losing a word costs a life */
+function loseLifeComp(){
+  G.lives--;
+  updateHUD();
+  flashLifeLost();
+  persist();
+  if(G.lives<=0){ setTimeout(()=>onGameOver(), 950); return; }
+  // reveal word briefly then move on to a NEW word at same step level
+  setTimeout(()=>{
+    showModal({
+      img:IMG.coq_triste, cls:'lose', title:'-1 ❤️',
+      word:G.word, wordLabel:t('theWordWas'),
+      text:`${G.lives} ❤️`,
+      btn1:t('nextWord'), btn2:t('toMenu'),
+      action1:()=>{ closeModal(); compNextWord(); },
+      action2:()=>finishCompetition()
+    });
+  }, 950);
+}
+
+function compNextWord(){
+  G.step=(G.step||0)+1;
+  const li=compLevelForStep(G.step);
+  const lv=LEVELS[li];
+  const word=pickWord(lv.len);
+  G.levelIndex=li; G.len=lv.len; G.maxTries=lv.tries;
+  G.word=word; G.firstLetter=word[0];
+  G.guesses=[]; G.current=word[0]; G.row=0; G.keyState={}; G.finished=false; G.won=false;
+  startGame();
+}
+
+function onGameOver(){
+  const francRun=(G.francEarned||0);
+  const wordsFound=Math.max(0, (G.step||0) - (COMP_LIVES - G.lives) + (G.lives<=0?0:0));
+  // simpler & accurate: count wins = francEarned / GRID_REWARD
+  const wins=Math.round(francRun/GRID_REWARD);
+  saveScore(francRun, wins, francRun);
+  clearCompSave();
+  stopTimer();
+  setMiniCoq(IMG.coq_triste, 30000);
+  showModal({
+    img:IMG.coq_triste, cls:'lose', title:t('gameOver'),
+    word:G.word, wordLabel:t('theWordWas'),
+    score:`🪙 ${francRun.toLocaleString()} $FRANC`,
+    text:t('gameOverText'),
+    btn1:t('replay'), btn2:t('backMenu'),
+    action1:()=>{closeModal(); newCompetition();},
+    action2:()=>{closeModal(); renderScores(); show('screenComp'); document.getElementById('btnResume').style.display='none';}
+  });
+}
+
+function finishCompetition(){
+  const francRun=(G.francEarned||0);
+  const wins=Math.round(francRun/GRID_REWARD);
+  saveScore(francRun, wins, francRun);
+  clearCompSave();
+  closeModal();
+  toast(`${t('newScore')} · ${francRun.toLocaleString()} $FRANC`);
+  renderScores();
+  show('screenComp');
+  document.getElementById('btnResume').style.display='none';
+}
+
+/* =====================================================================
+   LIFE LOSS ANIMATION
+   ===================================================================== */
+let miniTimer=null, _miniState=null;
+function flashLifeLost(){
+  const f=document.getElementById('lifeFlash');
+  document.getElementById('lifeTxt').textContent=`-1 ❤️ · ${G.lives}`;
+  f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+  setTimeout(()=>f.classList.remove('show'),900);
+  setMiniCoq(IMG.coq_triste, 30000);
+}
+function setMiniCoq(src, ms){
+  _miniState = (src===IMG.coq_pilote) ? null : src;
+  const mini=document.getElementById('miniPilote'); if(mini)mini.src=src;
+  if(miniTimer)clearTimeout(miniTimer);
+  miniTimer=setTimeout(()=>{ _miniState=null; const m=document.getElementById('miniPilote'); if(m)m.src=IMG.coq_pilote; miniTimer=null; }, ms);
+}
+function resetMiniPilot(){
+  if(miniTimer){clearTimeout(miniTimer);miniTimer=null;}
+  _miniState=null;
+  const mini=document.getElementById('miniPilote'); if(mini)mini.src=IMG.coq_pilote;
+}
+
+/* Tap the coq: press animation + flying hearts */
+function tapCoq(){
+  const img=document.getElementById('miniPilote');
+  if(!img)return;
+  img.classList.remove('coq-press'); void img.offsetWidth; img.classList.add('coq-press');
+  const wrap=document.getElementById('coqHearts');
+  const N=4+Math.floor(Math.random()*2);
+  for(let i=0;i<N;i++){
+    const h=document.createElement('span'); h.className='heart'; h.textContent='❤️';
+    h.style.left=(20+Math.random()*60)+'%'; h.style.animationDelay=(i*70)+'ms'; h.style.fontSize=(11+Math.random()*8)+'px';
+    wrap.appendChild(h); setTimeout(()=>h.remove(),1500);
+  }
+}
+
+/* =====================================================================
+   MODALS
+   ===================================================================== */
+let _a1=null,_a2=null;
+function showModal({img,cls,title,word,wordLabel,score,text,btn1,btn2,action1,action2}){
+  document.getElementById('modalImg').src=img;
+  const tt=document.getElementById('modalTitle'); tt.className=cls||''; tt.textContent=title;
+  const wd=document.getElementById('modalWord');
+  if(word){ wd.innerHTML=(wordLabel?`<span style="font-size:11px;color:var(--muted);display:block;letter-spacing:1px;margin-bottom:2px">${wordLabel}</span>`:'')+word; wd.classList.remove('hidden'); }
+  else wd.classList.add('hidden');
+  const sc=document.getElementById('modalScore');
+  if(score){sc.textContent=score; sc.classList.remove('hidden');}else{sc.classList.add('hidden');}
+  document.getElementById('modalText').innerHTML=text||'';
+  document.getElementById('modalBtn1').textContent=btn1;
+  document.getElementById('modalBtn2').textContent=btn2;
+  _a1=action1; _a2=action2;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+function modalAction1(){if(_a1)_a1();}
+function modalAction2(){if(_a2)_a2();}
+
+function showLockModal(kind){
+  showModal({
+    img:IMG.coq_triste, cls:'locked', title:t('lockedTitle'),
+    text: kind==='comp'? t('lockedComp') : t('lockedLvl'),
+    btn1:t('btnConnect'), btn2:t('btnClose'),
+    action1:()=>{closeModal(); goConnectWallet();},
+    action2:()=>closeModal()
+  });
+}
+
+/* =====================================================================
+   QUIT / TIMER / PERSIST / TOAST
+   ===================================================================== */
+function quitGame(){
+  if(G && G.mode==='comp'){ persist(); show('screenMenu'); }
+  else { show('screenUnique'); }
+}
+function startTimer(){ stopTimer(); timerInt=setInterval(()=>{ if(G&&!G.finished){G.elapsed=Date.now()-G.startTime; updateHUD();} },1000); }
+function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null;}}
+function persist(){ if(G && G.mode==='comp'){G.elapsed=Date.now()-G.startTime; saveComp();} }
+
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* Physical keyboard support */
+window.addEventListener('keydown',(e)=>{
+  if(document.getElementById('screenGame').classList.contains('hidden'))return;
+  if(document.getElementById('modalOverlay').classList.contains('show'))return;
+  const k=e.key;
+  if(k==='Enter'){submitGuess();}
+  else if(k==='Backspace'){delLetter();}
+  else if(/^[a-zA-Z]$/.test(k)){typeLetter(k.toUpperCase());}
+});
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+window.addEventListener('load',()=>{
+  document.getElementById('brandImg').src=IMG.coq_pilote;
+  document.getElementById('modalImg').src=IMG.coq_coeur;
+  document.getElementById('lifeImg').src=IMG.coq_triste;
+  if(tg){tg.ready(); tg.expand();}
+  setLang(lang);
+  renderCompLock(); renderWalletStatus(); renderLevelList(); renderScores();
+  detectHolder();
+});
+</script>
+</body>
+</html>
