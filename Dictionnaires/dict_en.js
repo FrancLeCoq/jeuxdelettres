@@ -23,6 +23,7 @@ window.DICT_EN = {
 
 /* ---------- Helpers communs ---------- */
 (function(D){
+  D.lang="en";
   var _ansByLen=null,_valByLen=null;
   function group(a){var m={};for(var i=0;i<a.length;i++){var L=a[i].length;(m[L]||(m[L]=[])).push(a[i]);}return m;}
   D.byLength=function(len,which){
@@ -33,4 +34,57 @@ window.DICT_EN = {
   function bin(a,x){var lo=0,hi=a.length-1;while(lo<=hi){var m=(lo+hi)>>1;if(a[m]===x)return true;if(a[m]<x)lo=m+1;else hi=m-1;}return false;}
   D.isValid=function(w){w=(w||'').toUpperCase();return bin(D.valid,w)||(D.answers.indexOf(w)>=0)||(D.defs[w]!==undefined);};
   D.clue=function(w){w=(w||'').toUpperCase();return D.defs[w]!==undefined?D.defs[w]:null;};
+
+  /* ---------- Anti-repetition (historique par jeu, localStorage) ---------- */
+  /* gameKey : identifiant du jeu ("motus","meles","fleches","pendu"...)        */
+  /* On memorise les mots deja proposes ; on recycle les plus anciens si epuise.*/
+  function _lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)||"[]"); }catch(e){ return []; } }
+  function _lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  function _histKey(D, gameKey){ return "flc_seen_"+gameKey+"_"+D.lang; }
+
+  /* Renvoie la liste des mots deja vus pour ce jeu. */
+  D.seenList=function(gameKey){ return _lsGet(_histKey(D,gameKey)); };
+
+  /* Marque un mot comme propose pour ce jeu. */
+  D.markSeen=function(gameKey, word){
+    word=(word||"").toUpperCase(); if(!word) return;
+    var key=_histKey(D,gameKey); var seen=_lsGet(key);
+    var i=seen.indexOf(word); if(i>=0) seen.splice(i,1); // remet a la fin (= plus recent)
+    seen.push(word);
+    _lsSet(key, seen);
+  };
+
+  /* Vide l'historique d'un jeu (option "rejouer depuis zero"). */
+  D.resetSeen=function(gameKey){ _lsSet(_histKey(D,gameKey), []); };
+
+  /* Choisit un mot d'un pool en evitant ceux deja vus pour ce jeu.            */
+  /* pool : tableau de mots (strings).                                          */
+  /* Si tous vus -> recycle en supprimant les plus anciens (la moitie) puis    */
+  /* retire ces anciens de l'historique pour repartir proprement.              */
+  D.pickFreshFrom=function(gameKey, pool){
+    if(!pool || !pool.length) return null;
+    var key=_histKey(D,gameKey);
+    var seen=_lsGet(key);
+    var seenSet={}; for(var i=0;i<seen.length;i++) seenSet[seen[i]]=1;
+    var avail=[]; for(var j=0;j<pool.length;j++){ if(!seenSet[pool[j]]) avail.push(pool[j]); }
+    if(!avail.length){
+      /* pool epuise -> recyclage : on oublie la moitie la plus ancienne */
+      var drop=Math.max(1, Math.floor(seen.length/2));
+      seen=seen.slice(drop);
+      _lsSet(key, seen);
+      seenSet={}; for(var k=0;k<seen.length;k++) seenSet[seen[k]]=1;
+      avail=[]; for(var m=0;m<pool.length;m++){ if(!seenSet[pool[m]]) avail.push(pool[m]); }
+      if(!avail.length) avail=pool.slice(); /* securite : tout le pool */
+    }
+    var w=avail[(Math.random()*avail.length)|0];
+    D.markSeen(gameKey, w);
+    return w;
+  };
+
+  /* Raccourci pour les jeux bases sur la longueur (Motus, Pendu...) :          */
+  /* pioche un mot "answers" de longueur len, jamais (sauf recyclage) repete.   */
+  D.pickFresh=function(gameKey, len){
+    return D.pickFreshFrom(gameKey, D.byLength(len, "answers"));
+  };
+
 })(window.DICT_EN);

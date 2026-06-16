@@ -553,13 +553,25 @@ function pickWords(level){
     }
   }
   shuffle(pool);
+  // Anti-repetition : on privilegie les mots jamais proposes dans Mots Meles.
+  const D = (lang==="en") ? window.DICT_EN : window.DICT_FR;
+  let already = {};
+  if(D && D.seenList){ const s=D.seenList("meles"); for(let i=0;i<s.length;i++) already[s[i]]=1; }
+  // d'abord les non-vus, puis les vus en repli (au cas ou le pool serait court)
+  const fresh=[], used=[];
+  for(const p of pool){ (already[p.grid] ? used : fresh).push(p); }
+  const ordered = fresh.concat(used);
   // dedupe by grid form, take needed count
   const seen=new Set(), out=[];
-  for(const p of pool){
+  for(const p of ordered){
     if(seen.has(p.grid)) continue;
     seen.add(p.grid); out.push(p);
     if(out.length>=level.words) break;
   }
+  // si on a du puiser dans les "vus" (pool epuise), on recycle l'historique
+  if(fresh.length < level.words && D && D.resetSeen){ D.resetSeen("meles"); }
+  // marque les mots retenus comme proposes
+  if(D && D.markSeen){ for(const p of out) D.markSeen("meles", p.grid); }
   // longest first → easier placement
   out.sort((a,b)=>b.grid.length-a.grid.length);
   return out;

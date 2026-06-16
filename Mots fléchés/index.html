@@ -553,11 +553,25 @@ function generateGrid(level){
   const size = level.size;
   const targetWords = level.words;
 
+  // Anti-repetition : on marque les mots deja proposes dans Mots Fleches
+  const D = (lang==="en") ? window.DICT_EN : window.DICT_FR;
+  let seenSet = {};
+  if(D && D.seenList){ const s=D.seenList("fleches"); for(let i=0;i<s.length;i++) seenSet[s[i]]=1; }
+  // bank reordonne : mots jamais vus d'abord, puis les vus en repli
+  const freshBank=[], usedBank=[];
+  for(const e of bank){ (seenSet[e.w] ? usedBank : freshBank).push(e); }
+  if(freshBank.length < targetWords*2 && D && D.resetSeen){ D.resetSeen("fleches"); usedBank.length=0; freshBank.push.apply(freshBank, bank.filter(e=>!freshBank.includes(e))); }
+  const orderedBank = freshBank.concat(usedBank);
+
   // attempt several times to reach a decent fill
   let best=null;
   for(let attempt=0; attempt<14 && (!best || best.placed.length<targetWords); attempt++){
-    const r=tryBuild(bank, size, targetWords);
+    const r=tryBuild(orderedBank, size, targetWords);
     if(!best || r.placed.length>best.placed.length) best=r;
+  }
+  // marque comme proposes les mots reellement places dans la grille
+  if(best && best.placed && D && D.markSeen){
+    for(const pw of best.placed){ if(pw && pw.word) D.markSeen("fleches", pw.word); }
   }
   return finalize(best, level);
 }
@@ -604,7 +618,8 @@ function tryBuild(bank, size, targetWords){
     used.add(word);
   }
 
-  const pool=[...bank].sort(()=>Math.random()-0.5);
+  // bank deja trie (mots non-vus en tete) -> melange leger qui preserve la priorite
+  const pool=bank.map((e,idx)=>({e,k:idx+Math.random()*3})).sort((a,b)=>a.k-b.k).map(o=>o.e);
   // first word: horizontal, near top-left with margin for the def cell
   const first=pool.find(e=>e.w.length<=size-2);
   if(!first) return {grid,placed,size};

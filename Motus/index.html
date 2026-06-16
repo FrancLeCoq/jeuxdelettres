@@ -403,7 +403,9 @@ function addFranc(delta){ const nv=Math.max(0, getFranc()+delta); setFranc(nv); 
 function curDict(){ return lang==="en" ? window.DICT_EN : window.DICT_FR; }
 function pickWord(len){
   const D=curDict();
-  const w = D && D.pick ? D.pick(len) : null;
+  // Anti-repetition : ne repropose pas un mot deja vu dans Motus (historique par jeu)
+  const w = (D && D.pickFresh) ? D.pickFresh("motus", len)
+          : (D && D.pick ? D.pick(len) : null);
   return w || (lang==="en"?"WORD":"MOTU");
 }
 function isValidWord(w){
