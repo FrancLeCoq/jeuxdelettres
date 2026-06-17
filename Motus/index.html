@@ -508,6 +508,24 @@ async function detectHolder(){
   renderCompLock(); renderWalletStatus(); renderLevelList();
 }
 
+/* Re-detection au retour de la page Wallet.
+   La WebApp n'est pas rechargee quand on revient : on relance detectHolder()
+   quand l'onglet redevient visible / la page est re-affichee. */
+let _pendingWalletReturn=false;
+function recheckWalletOnReturn(){
+  if(document.visibilityState==='visible'){
+    detectHolder();
+    _pendingWalletReturn=false;
+  }
+}
+document.addEventListener('visibilitychange', recheckWalletOnReturn);
+window.addEventListener('pageshow', recheckWalletOnReturn);
+window.addEventListener('focus', recheckWalletOnReturn);
+if(tg && typeof tg.onEvent==='function'){
+  tg.onEvent('activated', ()=>detectHolder());          // Telegram: app re-activee
+  tg.onEvent('viewportChanged', ()=>{ if(_pendingWalletReturn) detectHolder(); });
+}
+
 function renderWalletStatus(){
   const sub=document.getElementById('walletSub');
   const lock=document.getElementById('walletLock');
@@ -549,7 +567,18 @@ function renderCompLock(){
   else { btn.classList.remove('btn-comp-green'); btn.classList.add('btn-comp-orange'); lock.innerHTML=lockSvg(false); }
 }
 
-function goConnectWallet(){ window.location.href=WALLET_PAGE; }
+let _walletOpening=false;
+function goConnectWallet(){
+  if(_walletOpening) return;            // anti double-ouverture
+  _walletOpening=true;
+  setTimeout(()=>{ _walletOpening=false; }, 1200);
+  _pendingWalletReturn=true;            // on attend un retour pour re-detecter
+  if(tg && typeof tg.openLink==='function'){
+    tg.openLink(WALLET_PAGE);           // ouverture propre dans Telegram (une seule fois)
+  } else {
+    window.location.href=WALLET_PAGE;   // repli navigateur classique
+  }
+}
 
 /* =====================================================================
    COMPETITION

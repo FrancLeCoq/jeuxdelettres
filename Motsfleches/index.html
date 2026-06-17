@@ -829,6 +829,19 @@ async function detectHolder(){
   renderCompLock(); renderWalletStatus(); renderLevelList();
 }
 
+/* Re-detection au retour de la page Wallet (la WebApp n'est pas rechargee). */
+let _pendingWalletReturn=false;
+function recheckWalletOnReturn(){
+  if(document.visibilityState==='visible'){ detectHolder(); _pendingWalletReturn=false; }
+}
+document.addEventListener('visibilitychange', recheckWalletOnReturn);
+window.addEventListener('pageshow', recheckWalletOnReturn);
+window.addEventListener('focus', recheckWalletOnReturn);
+if(tg && typeof tg.onEvent==='function'){
+  tg.onEvent('activated', ()=>detectHolder());
+  tg.onEvent('viewportChanged', ()=>{ if(_pendingWalletReturn) detectHolder(); });
+}
+
 function renderWalletStatus(){
   const sub=document.getElementById('walletSub');
   const lock=document.getElementById('walletLock');
@@ -892,7 +905,14 @@ function renderCompLock(){
     lock.innerHTML=lockSvg(false);
   }
 }
-function goConnectWallet(){ window.location.href=WALLET_PAGE; }
+let _walletOpening=false;
+function goConnectWallet(){
+  if(_walletOpening) return;
+  _walletOpening=true; setTimeout(()=>{ _walletOpening=false; }, 1200);
+  _pendingWalletReturn=true;
+  if(tg && typeof tg.openLink==='function'){ tg.openLink(WALLET_PAGE); }
+  else { window.location.href=WALLET_PAGE; }
+}
 
 /* =====================================================================
    COMPETITION
