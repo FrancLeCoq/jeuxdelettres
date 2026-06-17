@@ -401,11 +401,19 @@ function addFranc(delta){ const nv=Math.max(0, getFranc()+delta); setFranc(nv); 
    WORD HELPERS
    ===================================================================== */
 function curDict(){ return lang==="en" ? window.DICT_EN : window.DICT_FR; }
-function pickWord(len){
+// Mapping niveau -> difficulte (Motus a 3 niveaux : facile / moyen / difficile)
+function difficultyFor(levelIndex){
+  if(levelIndex<=0) return "facile";
+  if(levelIndex===1) return "moyen";
+  return "difficile";
+}
+function pickWord(len, difficulty){
   const D=curDict();
-  // Anti-repetition : ne repropose pas un mot deja vu dans Motus (historique par jeu)
-  const w = (D && D.pickFresh) ? D.pickFresh("motus", len)
-          : (D && D.pick ? D.pick(len) : null);
+  difficulty = difficulty || "difficile";
+  // Anti-repetition + difficulte : pioche un mot non repete dans le pool de difficulte
+  const w = (D && D.pickByDifficulty) ? D.pickByDifficulty("motus", difficulty, len)
+          : (D && D.pickFresh ? D.pickFresh("motus", len)
+          : (D && D.pick ? D.pick(len) : null));
   return w || (lang==="en"?"WORD":"MOTU");
 }
 function isValidWord(w){
@@ -419,7 +427,7 @@ function isValidWord(w){
 let G = null;
 function freshGame(mode, levelIndex){
   const lv = LEVELS[levelIndex];
-  const word = pickWord(lv.len);
+  const word = pickWord(lv.len, difficultyFor(levelIndex));
   return {
     mode, levelIndex,
     word,
