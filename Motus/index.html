@@ -152,6 +152,7 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 }
 .key:active{transform:scale(0.9)}
 .key.wide{flex:1.6; font-size:13px}
+.key.enter{background:var(--good); border-color:var(--good-l); color:#fff; box-shadow:0 0 12px rgba(34,197,94,0.5); font-size:18px}
 .key.good{background:var(--good); border-color:var(--good-l)}
 .key.present{background:var(--present); border-color:#eab308; color:var(--present-txt)}
 .key.absent{background:var(--absent-d); border-color:#3b0764; color:#9d7bd8; opacity:.85}
@@ -710,7 +711,7 @@ function buildKbd(){
     rowKeys.forEach(key=>{
       const el=document.createElement('button');
       el.className='key';
-      if(key==='ENT'){ el.classList.add('wide'); el.textContent='⏎'; el.onclick=submitGuess; }
+      if(key==='ENT'){ el.classList.add('wide'); el.classList.add('enter'); el.textContent='⏎'; el.onclick=submitGuess; }
       else if(key==='DEL'){ el.classList.add('wide'); el.innerHTML='⌫'; el.onclick=delLetter; }
       else { el.textContent=key; el.dataset.k=key; el.onclick=()=>typeLetter(key); }
       kr.appendChild(el);
