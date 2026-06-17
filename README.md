@@ -87,9 +87,4 @@ des plus anciens quand le pool est epuise.
 
 Mots acceptes a la saisie (`valid`) : FR ~79 600 / EN ~79 300.
 
-## Ajouter un nouveau jeu (ex. Pendu)
 
-1. Creer `Pendu/index.html`.
-2. Charger le dictionnaire : `<script src="../Dictionnaires/dict_fr.js"></script>`.
-3. Tirer les mots via `DICT.pickByDifficulty("pendu", difficulte, longueur)`.
-4. L'anti-repetition fonctionne automatiquement avec la cle de jeu "pendu".
