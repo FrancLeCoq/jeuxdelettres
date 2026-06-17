@@ -799,21 +799,18 @@ function submitGuess(){
   if(G.finished)return;
   if(G.current.length<G.len){ toast(t('notFull')); shakeRow(); return; }
   const guess=G.current.toUpperCase();
-  const unknown = !isValidWord(guess);
 
-  // Unknown word: the line is LOST. We still consume the try, but give no
-  // colour hints (all 'absent') so an invented word can't leak the solution.
-  const result = unknown ? new Array(G.len).fill('absent') : evalGuess(guess, G.word);
-  if(unknown){ toast(t('notInList')); if(navigator.vibrate)navigator.vibrate(120); }
+  // On evalue TOUJOURS le placement des lettres. Le dictionnaire etant fini,
+  // on ne peut pas affirmer qu'un mot n'existe pas : un mot absent de notre base
+  // peut etre reel. On ne refuse donc jamais l'essai et on donne les indices normalement.
+  const result = evalGuess(guess, G.word);
 
   G.guesses.push({letters:guess.split(''), result});
-  // update key states (only for real evaluated guesses)
-  if(!unknown){
-    for(let i=0;i<G.len;i++){
-      const ch=guess[i], st=result[i];
-      const prev=G.keyState[ch];
-      if(st==='good' || (st==='present'&&prev!=='good') || (st==='absent'&&!prev)) G.keyState[ch]=st;
-    }
+  // update key states
+  for(let i=0;i<G.len;i++){
+    const ch=guess[i], st=result[i];
+    const prev=G.keyState[ch];
+    if(st==='good' || (st==='present'&&prev!=='good') || (st==='absent'&&!prev)) G.keyState[ch]=st;
   }
   // animate flip
   for(let c=0;c<G.len;c++){
@@ -824,7 +821,7 @@ function submitGuess(){
   refreshKbd();
   renderBoard();
 
-  const won = !unknown && result.every(x=>x==='good');
+  const won = result.every(x=>x==='good');
   G.row++;
   updateHUD();
   persist();
