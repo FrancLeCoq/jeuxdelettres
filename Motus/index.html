@@ -128,9 +128,9 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
   background:var(--tile-empty); border:2px solid var(--tile-border); border-radius:10px;
   color:#fff; text-transform:uppercase; transition:transform .15s; position:relative;
 }
-.tile.cur{border-color:var(--tile-active); box-shadow:0 0 14px rgba(14,165,233,0.5)}
-.tile.fixed{color:#9d7bd8; opacity:.7; cursor:default}
+.tile.hint{background:var(--absent); border-color:var(--absent-d); color:#fff; opacity:.92}
 .tile.filled{border-color:rgba(168,85,247,0.85)}
+.tile.cur{border-color:var(--tile-active)!important; box-shadow:0 0 14px rgba(14,165,233,0.6)}
 .tile.good{background:var(--good); border-color:var(--good-l); color:#fff; box-shadow:0 0 16px rgba(34,197,94,0.6)}
 .tile.present{background:var(--present); border-color:#eab308; color:var(--present-txt)}
 .tile.absent{background:var(--absent); border-color:var(--absent-d); color:#fff; opacity:.92}
@@ -439,6 +439,7 @@ function freshGame(mode, levelIndex){
     current: '',          // (deprecated) kept for save compatibility
     cells: [],            // current row letters, index 0 = fixed first letter
     cursor: 1,            // active cell index (0 is never editable)
+    found: [],            // confirmed well-placed letters carried over to next rows
     row: 0,
     firstLetter: word[0], // Motus: first letter revealed
     keyState: {},         // letter -> 'good'|'present'|'absent'
@@ -680,17 +681,28 @@ function startGame(){
   renderBoard();
 }
 
-/* Prepare an empty editable row: cell 0 holds the fixed first letter,
-   the rest is empty, cursor starts on cell 1. */
+/* Prepare a new editable row. Cell 0 holds the fixed first letter; any
+   letters already found (well-placed) are pre-filled as violet hints.
+   Cursor lands on the first still-empty editable cell. */
 function newRow(){
+  // ensure found[] exists and always carries the first letter
+  if(!Array.isArray(G.found) || G.found.length!==G.len){
+    G.found = new Array(G.len).fill('');
+  }
+  G.found[0] = G.firstLetter;
   // keep a valid in-progress row (e.g. resumed game); otherwise start fresh
   if(Array.isArray(G.cells) && G.cells.length===G.len && G.cells[0]===G.firstLetter){
-    if(typeof G.cursor!=='number' || G.cursor<1 || G.cursor>=G.len) G.cursor=1;
+    if(typeof G.cursor!=='number' || G.cursor<1 || G.cursor>=G.len) G.cursor=firstEmptyCell();
     return;
   }
-  G.cells = new Array(G.len).fill('');
-  G.cells[0] = G.firstLetter;
-  G.cursor = 1;
+  G.cells = G.found.slice();
+  G.cursor = firstEmptyCell();
+}
+
+/* First editable cell that is still empty; falls back to cell 1, then last. */
+function firstEmptyCell(){
+  for(let c=1;c<G.len;c++){ if(!G.cells[c]) return c; }
+  return G.len-1;
 }
 
 function buildBoard(){
@@ -785,12 +797,13 @@ function renderBoard(){
       const ch=G.cells[c]||'';
       tile.textContent=ch;
       let cls='tile'+(ch?' filled':'');
-      if(c===0) cls+=' fixed';                 // first letter: hint, non-editable
-      else {
-        if(c===G.cursor) cls+=' cur';          // active cell
-        tile.onclick=()=>moveCursor(c);        // click to edit this cell
-      }
+      // violet hint: first letter, or a confirmed found letter still in place
+      const isHint = (c===0) || (G.found[c] && ch===G.found[c]);
+      if(isHint) cls+=' hint';
+      // active cell always gets the blue frame, on top of any hint styling
+      if(c===G.cursor) cls+=' cur';
       tile.className=cls;
+      if(c!==0) tile.onclick=()=>moveCursor(c); // every editable cell is clickable
     }
   }
 }
@@ -866,10 +879,13 @@ function submitGuess(){
 
   if(won){ setTimeout(()=>onWin(), 600); return; }
   if(G.row>=G.maxTries){ setTimeout(()=>onRowsExhausted(), 600); return; }
-  // next row: fresh empty row, first letter shown as fixed hint only
-  G.cells = new Array(G.len).fill('');
-  G.cells[0] = G.firstLetter;
-  G.cursor = 1;
+  // record well-placed letters so they carry over to the next row
+  if(!Array.isArray(G.found)||G.found.length!==G.len) G.found=new Array(G.len).fill('');
+  G.found[0]=G.firstLetter;
+  for(let c=0;c<G.len;c++){ if(result[c]==='good') G.found[c]=guess[c]; }
+  // next row: pre-fill with found letters (shown violet until validated)
+  G.cells = G.found.slice();
+  G.cursor = firstEmptyCell();
   setTimeout(()=>renderBoard(), 600);
 }
 
@@ -973,7 +989,7 @@ function compNextWord(){
   const word=pickWord(lv.len);
   G.levelIndex=li; G.len=lv.len; G.maxTries=lv.tries;
   G.word=word; G.firstLetter=word[0];
-  G.guesses=[]; G.current=''; G.cells=[]; G.cursor=1; G.row=0; G.keyState={}; G.finished=false; G.won=false;
+  G.guesses=[]; G.current=''; G.cells=[]; G.cursor=1; G.found=[]; G.row=0; G.keyState={}; G.finished=false; G.won=false;
   startGame();
 }
 
