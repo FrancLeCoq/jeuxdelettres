@@ -19,8 +19,8 @@
   --cyan:#0ea5e9;
   --txt:#fff; --muted:#c9aaee;
   --cell-bg:#2a1052;
-  --cell-sel:rgba(14,165,233,0.55);
-  --cell-found:rgba(22,163,74,0.55);
+  --cell-sel:rgba(14,165,233,0.28);
+  --cell-found:rgba(255,255,255,0.05);
   --grid-bg:#1d0a3d;
   --grid-thin:rgba(120,70,190,0.45);
   --grid-thick:rgba(168,85,247,0.95);
@@ -178,6 +178,12 @@ body.playing #screenGame.card{
   border:4px solid var(--grid-thick); border-radius:12px; overflow:hidden;
   box-shadow:0 0 30px rgba(120,40,200,0.4);
   gap:0; touch-action:none;
+  position:relative;
+}
+/* neon capsule overlay (found words + live selection) */
+#capsules{
+  position:absolute; inset:0; width:100%; height:100%;
+  pointer-events:none; z-index:5;
 }
 .ws-cell{
   background:var(--cell-bg); display:flex; align-items:center; justify-content:center;
@@ -893,8 +899,8 @@ function startGame(){
   renderWordList();
   renderHUD();
   if(G.revealHelp) applyReveal();
-  // re-mark already found cells (resume)
-  G.words.forEach(w=>{ if(w.found) w.cells.forEach(idx=>markFound(idx)); });
+  // re-mark already found words (resume): cells + neon capsules + chips
+  G.words.forEach(w=>{ if(w.found) paintWordFound(w); });
   show('screenGame');
   startTimer();
 }
@@ -913,6 +919,14 @@ function buildBoard(){
     cell.textContent=G.grid[r][c];
     b.appendChild(cell);
   }
+  // neon capsule overlay (one glowing pill per found word, screenshot style)
+  b.insertAdjacentHTML('beforeend',
+    `<svg id="capsules" viewBox="0 0 ${N*CAP_U} ${N*CAP_U}" preserveAspectRatio="none">
+      <defs><filter id="capGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="${CAP_U*0.07}" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter></defs>
+    </svg>`);
   // pointer events for drag-select
   b.onpointerdown=onPointerDown;
   b.onpointermove=onPointerMove;
@@ -997,8 +1011,55 @@ function lineCells(a,b){
 function paintSel(){
   document.querySelectorAll('#board .ws-cell.sel').forEach(c=>c.classList.remove('sel'));
   selCells.forEach(idx=>{const el=document.querySelector(`#board .ws-cell[data-idx="${idx}"]`); if(el)el.classList.add('sel');});
+  removeCapsule('selCap');
+  if(selCells.length) drawCapsule(selCells, SEL_CAP_COLOR, 'selCap');
 }
-function clearSelPaint(){document.querySelectorAll('#board .ws-cell.sel').forEach(c=>c.classList.remove('sel'));}
+function clearSelPaint(){
+  document.querySelectorAll('#board .ws-cell.sel').forEach(c=>c.classList.remove('sel'));
+  removeCapsule('selCap');
+}
+
+/* =====================================================================
+   NEON CAPSULES — glowing rounded pills drawn over found words
+   ===================================================================== */
+const CAP_U = 100;               // SVG units per cell
+const SEL_CAP_COLOR = '#7dd3fc'; // live-selection pill
+const CAP_COLORS = ['#c084fc','#fb923c','#38bdf8','#facc15','#4ade80','#f472b6','#f87171','#22d3ee','#a3e635','#fb7185','#818cf8','#fbbf24'];
+function capsuleColor(wi){return CAP_COLORS[wi % CAP_COLORS.length];}
+function removeCapsule(id){
+  const svg=document.getElementById('capsules'); if(!svg)return;
+  const old=svg.querySelector('#'+id); if(old)old.remove();
+}
+function drawCapsule(cells,color,id){
+  const svg=document.getElementById('capsules'); if(!svg||!cells.length)return;
+  if(svg.querySelector('#'+id))return;
+  const N=G.N,u=CAP_U;
+  const a=cells[0], z=cells[cells.length-1];
+  const ax=((a%N)+0.5)*u, ay=(((a/N)|0)+0.5)*u;
+  const zx=((z%N)+0.5)*u, zy=(((z/N)|0)+0.5)*u;
+  const len=Math.hypot(zx-ax,zy-ay);
+  const h=0.74*u, cx=(ax+zx)/2, cy=(ay+zy)/2;
+  const ang=Math.atan2(zy-ay,zx-ax)*180/Math.PI;
+  svg.insertAdjacentHTML('beforeend',
+    `<g id="${id}" filter="url(#capGlow)">
+      <rect x="${cx-(len+h)/2}" y="${cy-h/2}" width="${len+h}" height="${h}" rx="${h/2}" ry="${h/2}"
+        fill="${color}" fill-opacity="0.10" stroke="${color}" stroke-width="${u*0.07}"
+        transform="rotate(${ang} ${cx} ${cy})"/>
+    </g>`);
+}
+/* mark a whole word as found: cells pop + neon capsule + colored chip */
+function paintWordFound(w, withChip=true){
+  const wi=G.words.indexOf(w);
+  w.cells.forEach(idx=>markFound(idx));
+  drawCapsule(w.cells, capsuleColor(wi), 'cap-w'+wi);
+  if(!withChip)return;
+  const chip=document.querySelector(`#wordList .word-chip[data-wi="${wi}"]`);
+  if(chip){
+    chip.classList.add('done');
+    chip.style.borderColor=capsuleColor(wi);
+    chip.style.textDecorationColor=capsuleColor(wi);
+  }
+}
 
 function selectionString(){
   return selCells.map(idx=>{const r=(idx/G.N)|0,c=idx%G.N;return G.grid[r][c];}).join('');
@@ -1023,9 +1084,7 @@ function evaluateSelection(){
   }
   if(hit){
     hit.found=true; G.foundCount++;
-    hit.cells.forEach(idx=>markFound(idx));
-    const chip=document.querySelector(`#wordList .word-chip[data-wi="${G.words.indexOf(hit)}"]`);
-    if(chip)chip.classList.add('done');
+    paintWordFound(hit);
     if(navigator.vibrate)navigator.vibrate(40);
     persist(); updateHUD();
     if(G.foundCount>=G.words.length){ onWin(); }
@@ -1059,9 +1118,7 @@ function hintWord(){
   if(remaining.length===0){toast(t('noHint'));return;}
   const w=remaining[(Math.random()*remaining.length)|0];
   w.found=true; G.foundCount++;
-  w.cells.forEach(idx=>markFound(idx));
-  const chip=document.querySelector(`#wordList .word-chip[data-wi="${G.words.indexOf(w)}"]`);
-  if(chip)chip.classList.add('done');
+  paintWordFound(w);
   G.hintsUsed++; addFranc(-HINT_COST);
   toast(t('hintUsed'));
   setMiniCoq(IMG.coq_stupefait,30000);
@@ -1203,10 +1260,10 @@ function onGameOver(){
     });
   });
 }
-/* reveal all remaining words in green before showing modal */
+/* reveal all remaining words (neon capsules) before showing modal */
 function playDefeat(onDone){
   stopTimer(); document.body.classList.add('locked-board');
-  G.words.forEach(w=>{ if(!w.found) w.cells.forEach(idx=>markFound(idx)); });
+  G.words.forEach(w=>{ if(!w.found) paintWordFound(w,false); });
   setTimeout(()=>{document.body.classList.remove('locked-board'); onDone();}, 2200);
 }
 function finishCompetition(){
