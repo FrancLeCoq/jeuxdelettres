@@ -418,10 +418,9 @@ function pickWord(len, difficulty){
           : (D && D.pick ? D.pick(len) : null));
   return w || (lang==="en"?"WORD":"MOTU");
 }
-function isValidWord(w){
-  const D=curDict();
-  return D && D.isValid ? D.isValid(w) : true;
-}
+/* Pas de controle dictionnaire sur la saisie : toute proposition de la
+   bonne longueur est evaluee (voir submitGuess). Le pool unique du
+   dictionnaire ne sert qu'a choisir les mots a faire deviner. */
 
 /* =====================================================================
    GAME STATE
