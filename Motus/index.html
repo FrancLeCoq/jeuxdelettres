@@ -162,6 +162,8 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 .lvl-btn{width:100%; padding:16px; border:none; border-radius:14px; margin-bottom:11px; font-family:'Bangers',cursive; font-size:19px; letter-spacing:2px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:space-between; touch-action:manipulation; transition:transform .1s; position:relative}
 .lvl-btn:active{transform:scale(0.97)}
 .lvl-btn .ll{display:flex; align-items:center; gap:10px}
+.lvl-btn .lcol{display:flex; flex-direction:column; align-items:flex-start; gap:3px}
+.lvl-btn .best{font-family:'Fredoka One',cursive; font-size:11px; letter-spacing:.5px; color:#ffe9a8; display:flex; align-items:center; gap:4px}
 .lvl-btn .stars{font-size:13px; letter-spacing:1px}
 .lvl-btn.unlocked{background:linear-gradient(135deg,#16a34a,#15803d); box-shadow:0 4px 18px rgba(22,163,74,0.4)}
 .lvl-btn.lockedb{background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 18px rgba(217,119,6,0.35)}
@@ -341,7 +343,8 @@ const I18N = {
     confirmQuit:'Quitter la partie ? La progression sera sauvegardée.',
     wConnected:'✅ Connecté', wNoFranc:'⚠️ Connecté — aucun $FRANC', wNotConnected:'Non connecté',
     newScore:'🎉 Score sauvegardé', francWon:'$FRANC virtuels gagnés',
-    firstLetter:'La 1ʳᵉ lettre est offerte !'
+    firstLetter:'La 1ʳᵉ lettre est offerte !',
+    bestTime:'Meilleur temps', newBest:'🏅 Nouveau meilleur temps !'
   },
   en:{
     tagline:'LE COQ FRANCIS', comp:'COMPETITION', unique:'FREE GRID', wallet:'CONNECT WALLET',
@@ -367,7 +370,8 @@ const I18N = {
     confirmQuit:'Quit the game? Progress will be saved.',
     wConnected:'✅ Connected', wNoFranc:'⚠️ Connected — no $FRANC', wNotConnected:'Not connected',
     newScore:'🎉 Score saved', francWon:'virtual $FRANC earned',
-    firstLetter:'The 1st letter is given!'
+    firstLetter:'The 1st letter is given!',
+    bestTime:'Best time', newBest:'🏅 New best time!'
   }
 };
 let lang = localStorage.getItem('flc_lang') || 'fr';
@@ -636,6 +640,16 @@ function loadCompSave(){ try{const s=localStorage.getItem('flc_compSave'); retur
 function saveComp(){ if(!G||G.mode!=='comp')return; localStorage.setItem('flc_compSave',JSON.stringify(G)); }
 function clearCompSave(){localStorage.removeItem('flc_compSave');}
 
+/* ---- Meilleur temps par niveau (mode grille libre) ---- */
+const BEST_KEY='flc_motusBest';
+function getBestTimes(){try{return JSON.parse(localStorage.getItem(BEST_KEY)||'{}');}catch(e){return {};}}
+function saveBestTime(li, ms){
+  const b=getBestTimes();
+  if(b[li]===undefined || ms<b[li]){ b[li]=ms; localStorage.setItem(BEST_KEY,JSON.stringify(b)); return true; }
+  return false;
+}
+function fmtTime(ms){const ts=Math.floor(ms/1000);return `${(ts/60)|0}:${String(ts%60).padStart(2,'0')}`;}
+
 /* ---- Scores (top 3) ---- */
 function getScores(){try{return JSON.parse(localStorage.getItem('flc_scores')||'[]');}catch(e){return [];}}
 function saveScore(total, wordsFound, franc){
@@ -672,7 +686,9 @@ function renderLevelList(){
     const unlocked = !lv.holderOnly || isHolder;
     const btn=document.createElement('button');
     btn.className='lvl-btn '+(unlocked?'unlocked':'lockedb');
-    btn.innerHTML=`<span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]} · ${t('lvlInfo')[i]}</span>
+    const best=getBestTimes()[i];
+    const bestLine = best!==undefined ? `<span class="best">🏅 ${t('bestTime')} : ${fmtTime(best)}</span>` : '';
+    btn.innerHTML=`<span class="lcol"><span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]} · ${t('lvlInfo')[i]}</span>${bestLine}</span>
       <span class="lk">${lockSvg(unlocked)}</span>`;
     btn.onclick=()=>{
       if(!unlocked){showLockModal('lvl');return;}
@@ -950,12 +966,16 @@ function onWin(){
       action2:()=>finishCompetition()
     });
   } else {
+    /* grille libre : on enregistre le meilleur temps du niveau */
+    const isRecord=saveBestTime(G.levelIndex, G.elapsed);
+    const best=getBestTimes()[G.levelIndex];
+    const timeLine=`⏱ ${fmtTime(G.elapsed)}` + (isRecord ? `<br>${t('newBest')}` : `<br>🏅 ${t('bestTime')} : ${fmtTime(best)}`);
     showModal({
       img:IMG.coq_coeur, cls:'win', title:t('bravo'),
-      word:G.word, text:t('winText'),
+      word:G.word, text:`${t('winText')}<br>${timeLine}`,
       btn1:t('replay'), btn2:t('backMenu'),
       action1:()=>{G=freshGame('unique',G.levelIndex); closeModal(); startGame();},
-      action2:()=>{closeModal(); show('screenUnique');}
+      action2:()=>{closeModal(); renderLevelList(); show('screenUnique');}
     });
   }
 }
