@@ -149,6 +149,8 @@ body.playing #screenGame.card{
 }
 .lvl-btn:active{transform:scale(0.97)}
 .lvl-btn .ll{display:flex; align-items:center; gap:10px}
+.lvl-btn .lcol{display:flex; flex-direction:column; align-items:flex-start; gap:3px}
+.lvl-btn .best{font-family:'Fredoka One',cursive; font-size:11px; letter-spacing:.5px; color:#ffe9a8; display:flex; align-items:center; gap:4px}
 .lvl-btn .stars{font-size:13px; letter-spacing:1px}
 .lvl-btn.unlocked{background:linear-gradient(135deg,#16a34a,#15803d); box-shadow:0 4px 18px rgba(22,163,74,0.4)}
 .lvl-btn.lockedb{background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 18px rgba(217,119,6,0.35)}
@@ -450,7 +452,8 @@ const I18N = {
     walletFranc:'✅ <b>$FRANC détecté !</b>', walletNo:'⚠️ Wallet connecté — aucun $FRANC',
     walletNone:'👛 Wallet non connecté',
     wConnected:'✅ Connecté', wNoFranc:'⚠️ Connecté — aucun $FRANC', wNotConnected:'Non connecté',
-    newScore:'🎉 Nouveau record ! $FRANC sauvegardé', loading:'Chargement des mots...'
+    newScore:'🎉 Nouveau record ! $FRANC sauvegardé', loading:'Chargement des mots...',
+    bestTime:'Meilleur temps', newBest:'🏅 Nouveau meilleur temps !'
   },
   en:{
     gameTitle:'WORD SEARCH',
@@ -480,7 +483,8 @@ const I18N = {
     walletFranc:'✅ <b>$FRANC detected!</b>', walletNo:'⚠️ Wallet connected — no $FRANC',
     walletNone:'👛 Wallet not connected',
     wConnected:'✅ Connected', wNoFranc:'⚠️ Connected — no $FRANC', wNotConnected:'Not connected',
-    newScore:'🎉 New record! $FRANC saved', loading:'Loading words...'
+    newScore:'🎉 New record! $FRANC saved', loading:'Loading words...',
+    bestTime:'Best time', newBest:'🏅 New best time!'
   }
 };
 let lang = localStorage.getItem('flc_lang') || 'fr';
@@ -841,6 +845,16 @@ function loadCompSave(){try{const s=localStorage.getItem('flc_wsSave');return s?
 function saveComp(){if(!G||G.mode!=='comp')return; localStorage.setItem('flc_wsSave',JSON.stringify(G));}
 function clearCompSave(){localStorage.removeItem('flc_wsSave');}
 
+/* ---- Meilleur temps par niveau (mode grille unique) ---- */
+const BEST_KEY='flc_wsBest';
+function getBestTimes(){try{return JSON.parse(localStorage.getItem(BEST_KEY)||'{}');}catch(e){return {};}}
+function saveBestTime(li, ms){
+  const b=getBestTimes();
+  if(b[li]===undefined || ms<b[li]){ b[li]=ms; localStorage.setItem(BEST_KEY,JSON.stringify(b)); return true; }
+  return false;
+}
+function fmtTime(ms){const ts=Math.floor(ms/1000);return `${(ts/60)|0}:${String(ts%60).padStart(2,'0')}`;}
+
 /* ---- Scores (top 3), shared-style ---- */
 function getScores(){try{return JSON.parse(localStorage.getItem('flc_wsScores')||'[]');}catch(e){return [];}}
 function saveScore(franc, levelsCleared){
@@ -873,7 +887,9 @@ function renderLevelList(){
     const unlocked=!lv.holderOnly||isHolder;
     const btn=document.createElement('button');
     btn.className='lvl-btn '+(unlocked?'unlocked':'lockedb');
-    btn.innerHTML=`<span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]}</span>
+    const best=getBestTimes()[i];
+    const bestLine = best!==undefined ? `<span class="best">🏅 ${t('bestTime')} : ${fmtTime(best)}</span>` : '';
+    btn.innerHTML=`<span class="lcol"><span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]}</span>${bestLine}</span>
       <span class="lk">${lockSvg(unlocked)}</span>`;
     btn.onclick=async()=>{
       if(!unlocked){showLockModal('lvl');return;}
@@ -1219,11 +1235,15 @@ function onWin(){
     });
   } else {
     setMiniCoq(IMG.coq_coeur,30000);
+    /* grille unique : on enregistre le meilleur temps du niveau */
+    const isRecord=saveBestTime(G.levelIndex, G.elapsed);
+    const best=getBestTimes()[G.levelIndex];
+    const timeLine=`⏱ ${fmtTime(G.elapsed)}` + (isRecord ? `<br>${t('newBest')}` : `<br>🏅 ${t('bestTime')} : ${fmtTime(best)}`);
     showModal({
-      img:IMG.coq_coeur, cls:'win', title:t('bravo'), text:t('winText'),
+      img:IMG.coq_coeur, cls:'win', title:t('bravo'), text:`${t('winText')}<br>${timeLine}`,
       btn1:t('replay'), btn2:t('backMenu'),
       action1:()=>{G=freshGame('unique',G.levelIndex);closeModal();startGame();},
-      action2:()=>{closeModal();show('screenUnique');}
+      action2:()=>{closeModal();renderLevelList();show('screenUnique');}
     });
   }
 }
