@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>LE PENDU — Le Coq Francis</title>
+<title>CHICKENHANG — Le Coq Francis</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="../Dictionnaires/dict_fr.js"></script>
 <script src="../Dictionnaires/dict_en.js"></script>
@@ -20,12 +20,9 @@
   --txt:#fff; --muted:#c9aaee;
   --tile-empty:#2a1052;
   --tile-border:rgba(120,70,190,0.55);
-  --good:#22c55e;
-  --good-l:#4ade80;
-  --absent:#6d28d9;
-  --absent-d:#4c1d95;
-  --wood:#d97706;
-  --rope:#fcd34d;
+  --good:#22c55e; --good-l:#4ade80;
+  --absent:#6d28d9; --absent-d:#4c1d95;
+  --rope:#f0dcae;
 }
 html,body{height:100%}
 body{
@@ -46,22 +43,22 @@ body::before{
 }
 .app{width:100%; max-width:440px; position:relative; z-index:1; display:flex; flex-direction:column; align-items:center}
 
-/* HEADER */
+/* ===== HEADER ===== */
 .brand{display:flex; flex-direction:column; align-items:center; margin-bottom:14px; margin-top:4px}
 .brand img{width:96px; height:96px; object-fit:contain; filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6)); animation:bob 3.2s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
-.brand h1{font-family:'Bangers',cursive; font-size:38px; letter-spacing:4px; color:var(--gold); text-shadow:0 0 22px rgba(255,215,0,0.55),0 3px 0 rgba(0,0,0,0.35); margin-top:2px; line-height:1; text-align:center}
+.brand h1{font-family:'Bangers',cursive; font-size:36px; letter-spacing:3px; color:var(--gold); text-shadow:0 0 22px rgba(255,215,0,0.55),0 3px 0 rgba(0,0,0,0.35); margin-top:2px; line-height:1; text-align:center}
 .brand .tagline{font-size:11px; color:var(--muted); letter-spacing:1px; margin-top:3px}
 
 .card{width:100%; background:linear-gradient(145deg,rgba(13,5,32,0.95),rgba(30,10,65,0.95)); border:2px solid rgba(180,100,255,0.30); border-radius:24px; padding:22px 18px; box-shadow:0 0 50px rgba(120,40,200,0.35)}
 
-/* fullscreen in game */
+/* ===== FULLSCREEN IN GAME ===== */
 body.playing{padding:0; justify-content:flex-start}
 body.playing .brand{display:none}
 body.playing .app{max-width:480px}
 body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; background:transparent; padding:10px 10px calc(14px + env(safe-area-inset-bottom)); min-height:100vh; display:flex; flex-direction:column}
 
-/* Buttons */
+/* ===== Buttons (menu) ===== */
 .menu-btn{width:100%; padding:18px; border:none; border-radius:16px; font-family:'Bangers',cursive; font-size:22px; letter-spacing:2px; color:#fff; cursor:pointer; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:12px; touch-action:manipulation; transition:transform .12s,box-shadow .12s,opacity .12s; position:relative; overflow:hidden}
 .menu-btn:active{transform:scale(0.97)}
 .menu-btn .ico{font-size:24px; line-height:1}
@@ -81,19 +78,23 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 .btn-purple{background:linear-gradient(135deg,#7c3aed,#5b21b6); box-shadow:0 5px 22px rgba(124,58,237,0.45)}
 .btn-neutral{background:rgba(109,40,217,0.25); border:1px solid rgba(168,85,247,0.4); box-shadow:none}
 
+/* Language flags */
 .lang-row{display:flex; justify-content:center; gap:14px; margin-top:6px}
 .flag-btn{width:66px; height:46px; border-radius:12px; cursor:pointer; border:2px solid rgba(168,85,247,0.4); background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; touch-action:manipulation; transition:transform .12s,border-color .12s; overflow:hidden}
 .flag-btn:active{transform:scale(0.92)}
 .flag-btn.active{border-color:var(--gold); box-shadow:0 0 18px rgba(255,215,0,0.45)}
 .flag-btn svg{width:48px; height:32px; border-radius:4px; display:block}
 
+/* Back button */
 .back-btn{display:flex; align-items:center; gap:6px; width:100%; background:rgba(109,40,217,0.2); border:1px solid rgba(168,85,247,0.4); color:#a78bfa; font-size:14px; font-family:'Fredoka One',cursive; cursor:pointer; margin-bottom:16px; padding:9px 14px; border-radius:10px; touch-action:manipulation; transition:opacity .12s,transform .12s}
 .back-btn:active{opacity:.7; transform:scale(0.98)}
 .back-btn::before{content:'\2190'; font-size:18px; font-weight:bold}
 
+/* Section titles */
 .sec-title{font-family:'Bangers',cursive; font-size:24px; letter-spacing:2px; color:var(--purple); text-align:center; margin-bottom:14px}
 .sec-sub{font-size:11px; color:var(--muted); text-align:center; margin-top:-8px; margin-bottom:16px; line-height:1.5}
 
+/* Scores */
 .scores-box{margin-top:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.25); border-radius:14px; padding:14px}
 .scores-box .sh{font-family:'Bangers',cursive; letter-spacing:1px; color:var(--gold); font-size:16px; margin-bottom:10px; text-align:center}
 .score-row{display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:10px; margin-bottom:6px; font-size:13px; background:rgba(255,255,255,0.03)}
@@ -103,61 +104,7 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 .score-row .meta{font-size:10px; color:var(--muted)}
 .no-scores{text-align:center; color:var(--muted); font-size:12px; padding:8px}
 
-/* GAME */
-.game-top{display:flex; align-items:center; width:100%; margin-bottom:10px; gap:8px}
-.game-top .lvl-badge{font-family:'Bangers',cursive; letter-spacing:1px; font-size:16px; color:var(--gold); flex:1; text-align:left}
-.game-top .pad-coq{margin-right:-4px}
-.hud{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; width:100%; margin-bottom:8px}
-.hud .chip{background:rgba(255,255,255,0.06); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:6px 12px; font-size:13px; display:flex; align-items:center; gap:6px}
-.hud .chip .lab{font-size:9px; color:var(--muted); letter-spacing:.5px}
-.hud .chip .num{font-family:'Bangers',cursive; font-size:17px; letter-spacing:1px}
-.chip.lives .num{color:#fca5a5}
-.chip.score .num{color:var(--green-l)}
-.chip.time .num{color:var(--cyan)}
-.chip.errs .num{color:var(--orange-l)}
-
-/* Gallows */
-.gallows-wrap{width:100%; display:flex; justify-content:center; margin:2px 0 6px}
-.gallows-wrap svg{width:min(62vw,250px); height:auto; display:block; overflow:visible}
-.gpart{opacity:0; transition:opacity .35s}
-.gpart.on{opacity:1}
-.gpart.wood{stroke:var(--wood); stroke-width:9; stroke-linecap:round; fill:none; filter:drop-shadow(0 0 8px rgba(217,119,6,0.5))}
-.gpart.rope{stroke:var(--rope); stroke-width:4; stroke-linecap:round; fill:none; filter:drop-shadow(0 0 6px rgba(252,211,77,0.5))}
-#hangedCoq{opacity:0; transform-origin:124px 96px; pointer-events:none}
-#hangedCoq.on{opacity:1; animation:swing 2.2s ease-in-out infinite}
-@keyframes swing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
-
-/* Word tiles */
-.word-wrap{width:100%; display:flex; justify-content:center; margin-bottom:6px}
-.wrow{display:grid; gap:6px; width:100%; max-width:380px}
-.tile{
-  aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
-  font-family:'Bangers',cursive; font-size:clamp(22px,7vw,40px); letter-spacing:1px;
-  background:var(--tile-empty); border:2px solid var(--tile-border); border-radius:10px;
-  color:#fff; text-transform:uppercase; transition:transform .15s; position:relative;
-}
-.tile.hint{background:var(--absent); border-color:var(--absent-d); color:#fff; opacity:.92}
-.tile.good{background:var(--good); border-color:var(--good-l); color:#fff; box-shadow:0 0 16px rgba(34,197,94,0.6)}
-.tile.reveal{background:#7f1d1d; border-color:#ef4444; color:#fecaca}
-.tile.pop{animation:tpop .25s ease-out}
-@keyframes tpop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
-
-/* AZERTY keyboard (letters only: a letter is proposed on tap) */
-.kbd{width:100%; max-width:480px; margin:8px auto 0; display:flex; flex-direction:column; gap:6px}
-.krow{display:flex; gap:5px; justify-content:center}
-.key{
-  flex:1; min-width:0; height:48px; border-radius:9px; border:1.5px solid rgba(168,85,247,0.4);
-  background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(91,33,182,0.4)); color:#fff;
-  font-family:'Bangers',cursive; font-size:18px; letter-spacing:.5px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; touch-action:manipulation;
-  transition:transform .08s,background .1s; padding:0;
-}
-.key:active{transform:scale(0.9)}
-.key.good{background:var(--good); border-color:var(--good-l)}
-.key.absent{background:var(--absent-d); border-color:#3b0764; color:#9d7bd8; opacity:.85}
-.krow .spacer{flex:2}
-
-/* level list */
+/* Level list */
 .lvl-btn{width:100%; padding:16px; border:none; border-radius:14px; margin-bottom:11px; font-family:'Bangers',cursive; font-size:19px; letter-spacing:2px; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:space-between; touch-action:manipulation; transition:transform .1s; position:relative}
 .lvl-btn:active{transform:scale(0.97)}
 .lvl-btn .ll{display:flex; align-items:center; gap:10px}
@@ -168,8 +115,91 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 .lvl-btn.lockedb{background:linear-gradient(135deg,#d97706,#b45309); box-shadow:0 4px 18px rgba(217,119,6,0.35)}
 .lvl-btn .lk{font-size:18px}
 
+/* ===== GAME SCREEN ===== */
+.game-top{display:flex; align-items:center; width:100%; margin-bottom:8px; gap:8px}
+.game-top .lvl-badge{font-family:'Bangers',cursive; letter-spacing:1px; font-size:15px; color:var(--gold); flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.hud{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; width:100%; margin-bottom:6px}
+.hud .chip{background:rgba(255,255,255,0.06); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:6px 12px; font-size:13px; display:flex; align-items:center; gap:6px}
+.hud .chip .lab{font-size:9px; color:var(--muted); letter-spacing:.5px}
+.hud .chip .num{font-family:'Bangers',cursive; font-size:17px; letter-spacing:1px}
+.chip.lives .num{color:#fca5a5}
+.chip.score .num{color:var(--green-l)}
+.chip.time .num{color:var(--cyan)}
+.chip.errs .num{color:var(--orange-l)}
+
+/* ===== PERCH GALLOWS ===== */
+.perch-wrap{width:100%; display:flex; justify-content:center; margin:2px 0 2px; position:relative}
+.perch-stage{position:relative; width:min(72vw,290px); overflow:visible}
+.perch-stage svg{width:100%; height:auto; display:block; overflow:visible}
+.wood{fill:url(#gWood)}
+.woodline{stroke:url(#gWood); fill:none; stroke-linecap:round}
+.grain{stroke:rgba(60,30,8,0.45); stroke-width:1.4; stroke-linecap:round; fill:none}
+#rope,#noose{stroke:var(--rope); fill:none; stroke-linecap:round; filter:drop-shadow(0 0 6px rgba(240,220,174,0.45)); transition:opacity .3s}
+#rope{stroke-width:4.6}
+#noose{stroke-width:4.6}
+#perchCoq{transition:x .5s cubic-bezier(.35,1.2,.5,1), y .5s cubic-bezier(.35,1.2,.5,1)}
+.perch-stage.hanged #perchCoq{animation:swing 2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 8%}
+@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.perch-stage.shake{animation:pshake .45s ease-out}
+@keyframes pshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}45%{transform:translateX(5px)}70%{transform:translateX(-3px)}}
+
+/* falling golden feathers (visual borrowed from EggClicker) */
+.feather-fx{position:absolute; inset:0; pointer-events:none; overflow:visible; z-index:4}
+.feather-fx img{position:absolute; width:23%; max-width:52px; transform-origin:50% 50%; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.55)) drop-shadow(0 0 10px rgba(255,200,60,0.55)); animation:featherFall 2.3s cubic-bezier(.4,.1,.6,1) forwards}
+@keyframes featherFall{
+  0%  {opacity:0; transform:translate(-50%,-10px) rotate(-12deg) scale(.5)}
+  12% {opacity:1; transform:translate(-64%,6px)   rotate(30deg)  scale(1)}
+  35% {opacity:1; transform:translate(-124%,40px) rotate(-26deg) scale(1)}
+  60% {opacity:.95;transform:translate(-16%,80px) rotate(36deg)  scale(.98)}
+  85% {opacity:.55;transform:translate(-116%,120px) rotate(-20deg) scale(.92)}
+  100%{opacity:0; transform:translate(-60%,152px) rotate(14deg)  scale(.86)}
+}
+
+/* remaining plumage row */
+.plumes{display:flex; justify-content:center; align-items:center; gap:3px; width:100%; margin:2px 0 4px; min-height:26px}
+.plumes img{width:24px; height:24px; object-fit:contain; transition:filter .35s,opacity .35s,transform .35s; filter:drop-shadow(0 0 6px rgba(255,200,60,0.55))}
+.plumes img.off{filter:grayscale(1) brightness(.5); opacity:.28; transform:scale(.82) rotate(-25deg)}
+.plumes .pcount{font-family:'Bangers',cursive; font-size:15px; letter-spacing:1px; color:var(--orange-l); margin-left:6px}
+
+/* ===== WORD TILES ===== */
+.word-wrap{width:100%; display:flex; justify-content:center; margin-bottom:4px}
+.wrow{display:grid; gap:5px; width:100%; max-width:400px}
+.tile{
+  aspect-ratio:1/1; display:flex; align-items:center; justify-content:center;
+  font-family:'Bangers',cursive; font-size:clamp(18px,6vw,36px); letter-spacing:1px;
+  background:var(--tile-empty); border:2px solid var(--tile-border); border-radius:10px;
+  color:#fff; text-transform:uppercase; transition:transform .15s; position:relative;
+}
+.tile.hint{background:var(--absent); border-color:var(--absent-d); color:#fff; opacity:.92}
+.tile.good{background:var(--good); border-color:var(--good-l); color:#fff; box-shadow:0 0 16px rgba(34,197,94,0.6)}
+.tile.reveal{background:#7f1d1d; border-color:#ef4444; color:#fecaca}
+.tile.pop{animation:tpop .25s ease-out}
+@keyframes tpop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* ===== TOOLS (competition) ===== */
+.pad-tools{display:grid; grid-template-columns:repeat(2,1fr); gap:6px; width:100%; max-width:400px; margin:4px auto 0}
+.tool-btn{background:rgba(255,255,255,0.06); border:1.5px solid rgba(168,85,247,0.35); border-radius:12px; padding:9px 2px; font-family:'Fredoka One'; font-size:11px; color:#fff; cursor:pointer; touch-action:manipulation; transition:transform .1s; display:flex; align-items:center; justify-content:center; gap:4px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tool-btn span{overflow:hidden; text-overflow:ellipsis}
+.tool-btn img{width:15px; height:15px; object-fit:contain}
+.tool-btn:active{transform:scale(0.94)}
+
+/* ===== KEYBOARD ===== */
+.kbd{width:100%; max-width:480px; margin:6px auto 0; display:flex; flex-direction:column; gap:5px}
+.krow{display:flex; gap:5px; justify-content:center}
+.key{
+  flex:1; min-width:0; height:46px; border-radius:9px; border:1.5px solid rgba(168,85,247,0.4);
+  background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(91,33,182,0.4)); color:#fff;
+  font-family:'Bangers',cursive; font-size:18px; letter-spacing:.5px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; touch-action:manipulation;
+  transition:transform .08s,background .1s; padding:0;
+}
+.key:active{transform:scale(0.9)}
+.key.good{background:var(--good); border-color:var(--good-l)}
+.key.absent{background:var(--absent-d); border-color:#3b0764; color:#9d7bd8; opacity:.85}
+.krow .spacer{flex:2}
+
 /* floating coq */
-.pad-coq{position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; width:58px; height:58px; overflow:visible; flex-shrink:0}
+.pad-coq{position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation; width:52px; height:52px; overflow:visible; flex-shrink:0}
 .pad-coq img{width:auto; height:100%; max-width:100%; object-fit:contain; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.6)); animation:bob 3.6s ease-in-out infinite; pointer-events:none}
 .pad-coq img.coq-press{animation:coqPress .35s ease-out}
 @keyframes coqPress{0%{transform:scale(1)}35%{transform:scale(0.82) rotate(-4deg)}70%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1)}}
@@ -177,30 +207,34 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 .pad-coq .heart{position:absolute; bottom:30%; transform:translateX(-50%); opacity:0; animation:heartFly 1.4s ease-out forwards}
 @keyframes heartFly{0%{opacity:0; transform:translate(-50%,0) scale(.4)}15%{opacity:1; transform:translate(-50%,-8px) scale(1)}100%{opacity:0; transform:translate(-50%,-70px) scale(1.1)}}
 
-/* OVERLAYS */
+/* ===== OVERLAYS ===== */
 .overlay{position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(5,2,15,0.82); backdrop-filter:blur(6px)}
 .overlay.show{display:flex; animation:fadein .25s}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 .modal{width:100%; max-width:340px; text-align:center; background:linear-gradient(145deg,rgba(13,5,32,0.98),rgba(30,10,65,0.98)); border:2px solid rgba(180,100,255,0.4); border-radius:24px; padding:26px 22px; box-shadow:0 0 60px rgba(120,40,200,0.5); animation:pop .3s cubic-bezier(.2,1.4,.5,1)}
 @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.modal img{width:120px; height:120px; object-fit:contain; margin-bottom:10px; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.6))}
+.modal img.mimg{width:120px; height:120px; object-fit:contain; margin-bottom:10px; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.6))}
 .modal h2{font-family:'Bangers',cursive; font-size:30px; letter-spacing:2px; margin-bottom:8px}
 .modal h2.win{color:var(--green-l); text-shadow:0 0 20px rgba(163,230,53,0.5)}
 .modal h2.lose{color:#fca5a5; text-shadow:0 0 20px rgba(239,68,68,0.4)}
 .modal h2.locked{color:var(--orange-l)}
 .modal p{font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:18px}
 .modal p b{color:var(--gold)}
-.modal .reveal-word{font-family:'Bangers',cursive; font-size:24px; letter-spacing:3px; color:var(--good-l); margin:4px 0 12px}
+.modal .word-label{font-size:11px; color:var(--muted); letter-spacing:1px}
+.modal .reveal-word{font-family:'Bangers',cursive; font-size:24px; letter-spacing:3px; color:var(--good-l); margin:2px 0 12px}
 .modal .modal-score{font-family:'Bangers',cursive; font-size:26px; color:var(--green-l); margin:6px 0 14px; letter-spacing:1px}
 
+/* feather-loss flash */
 .life-flash{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; pointer-events:none}
 .life-flash.show{display:flex}
 .life-flash img{width:160px; height:160px; object-fit:contain; animation:lifepop .9s ease-out forwards; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.6))}
 @keyframes lifepop{0%{transform:scale(.3) translateY(40px);opacity:0}25%{transform:scale(1.1) translateY(0);opacity:1}70%{transform:scale(1) translateY(0);opacity:1}100%{transform:scale(.9) translateY(-30px);opacity:0}}
 .life-flash .lf-txt{position:absolute; bottom:30%; font-family:'Bangers',cursive; font-size:28px; color:#fca5a5; letter-spacing:2px; text-shadow:0 0 20px rgba(239,68,68,0.6); animation:lifepop .9s ease-out forwards}
 
+/* toast */
 .toast{position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(217,119,6,0.95); color:#fff; padding:12px 18px; border-radius:14px; font-size:13px; z-index:70; opacity:0; transition:opacity .25s,transform .25s; max-width:90%; text-align:center; box-shadow:0 6px 24px rgba(0,0,0,0.5); pointer-events:none}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
 .hidden{display:none!important}
 </style>
 </head>
@@ -210,11 +244,11 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
   <!-- BRAND HEADER -->
   <div class="brand">
     <img alt="Francis" id="brandImg">
-    <h1 id="brandTitle">LE PENDU</h1>
+    <h1 id="brandTitle">CHICKENHANG</h1>
     <div class="tagline" id="tagline">LE COQ FRANCIS</div>
   </div>
 
-  <!-- MENU -->
+  <!-- ============ MENU ============ -->
   <div class="card" id="screenMenu">
     <button class="menu-btn btn-unique" onclick="show('screenUnique')">
       <span class="ico">🎯</span><span id="lblUnique">MOT LIBRE</span>
@@ -238,7 +272,7 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
     </div>
   </div>
 
-  <!-- COMPETITION SUBMENU -->
+  <!-- ============ COMPETITION SUBMENU ============ -->
   <div class="card hidden" id="screenComp">
     <button class="back-btn" id="backComp1" onclick="show('screenMenu')">Retour</button>
     <div class="sec-title">🏆 <span id="compTitle">COMPÉTITION</span></div>
@@ -255,7 +289,7 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
     </div>
   </div>
 
-  <!-- FREE WORD LEVELS -->
+  <!-- ============ FREE WORD LEVELS ============ -->
   <div class="card hidden" id="screenUnique">
     <button class="back-btn" id="backUnique" onclick="show('screenMenu')">Retour</button>
     <div class="sec-title">🎯 <span id="uniqueTitle">MOT LIBRE</span></div>
@@ -263,7 +297,7 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
     <div id="levelList"></div>
   </div>
 
-  <!-- GAME -->
+  <!-- ============ GAME ============ -->
   <div class="card hidden" id="screenGame">
     <div class="game-top">
       <button class="back-btn" id="backGame" style="margin-bottom:0;width:auto;padding:8px 12px" onclick="quitGame()">Menu</button>
@@ -272,19 +306,64 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
         <img id="miniPilote" alt="Francis"><span class="hearts" id="coqHearts"></span>
       </div>
     </div>
+
     <div class="hud" id="hud"></div>
-    <div class="gallows-wrap">
-      <svg id="gallows" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
-        <!-- 6 erreurs = 6 etapes : sol, poteau, poutre, corde, noeud, coq pendu -->
-        <line id="g1" class="gpart wood" x1="16"  y1="206" x2="150" y2="206"/>
-        <line id="g2" class="gpart wood" x1="48"  y1="206" x2="48"  y2="22"/>
-        <path id="g3" class="gpart wood" d="M44 26 L124 26 M48 62 L86 26"/>
-        <line id="g4" class="gpart rope" x1="124" y1="26"  x2="124" y2="72"/>
-        <circle id="g5" class="gpart rope" cx="124" cy="82" r="10"/>
-        <image id="hangedCoq" href="../Visuels/coq_triste.png" x="86" y="84" width="76" height="76"/>
-      </svg>
+
+    <!-- PERCHOIR : la potence en forme de perchoir -->
+    <div class="perch-wrap">
+      <div class="perch-stage" id="perchStage">
+        <svg id="perch" viewBox="0 0 240 196" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0"    stop-color="#c98a48"/>
+              <stop offset="0.45" stop-color="#9a5f28"/>
+              <stop offset="1"    stop-color="#5f3714"/>
+            </linearGradient>
+            <radialGradient id="gShadow" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="rgba(0,0,0,0.55)"/>
+              <stop offset="1" stop-color="rgba(0,0,0,0)"/>
+            </radialGradient>
+          </defs>
+
+          <!-- ombre au sol -->
+          <ellipse cx="120" cy="188" rx="74" ry="8" fill="url(#gShadow)"/>
+          <!-- socle du perchoir -->
+          <rect class="wood" x="58" y="172" width="124" height="14" rx="7"/>
+          <path class="grain" d="M72 179 H108 M126 176 H166"/>
+          <!-- mât -->
+          <rect class="wood" x="110" y="64" width="15" height="112" rx="7.5"/>
+          <path class="grain" d="M117 86 V112 M117 128 V160"/>
+          <!-- renforts -->
+          <path class="woodline" stroke-width="8" d="M117 98 L 84 66"/>
+          <path class="woodline" stroke-width="8" d="M117 98 L 150 66"/>
+          <!-- barre du perchoir (le perchoir proprement dit) -->
+          <rect class="wood" x="30" y="56" width="180" height="14" rx="7"/>
+          <path class="grain" d="M44 63 H86 M100 60 H140 M156 66 H196"/>
+          <!-- anneau décoratif à l'extrémité gauche -->
+          <circle cx="37" cy="82" r="8.5" fill="none" stroke="url(#gWood)" stroke-width="3.5"/>
+          <line x1="37" y1="70" x2="37" y2="74" stroke="url(#gWood)" stroke-width="3.5" stroke-linecap="round"/>
+
+          <!-- corde + nœud coulant (apparaissent à mesure des erreurs) -->
+          <line id="rope" x1="178" y1="70" x2="178" y2="76" style="opacity:0"/>
+          <circle id="noose" cx="178" cy="88" r="11.5" style="opacity:0"/>
+
+          <!-- Francis -->
+          <image id="perchCoq" x="44" y="0" width="60" height="60" href="../Visuels/coq_pilote.png"/>
+        </svg>
+        <div class="feather-fx" id="featherFx"></div>
+      </div>
     </div>
+
+    <!-- plumage restant -->
+    <div class="plumes" id="plumes"></div>
+
     <div class="word-wrap"><div class="wrow" id="wordRow"></div></div>
+
+    <div class="pad-tools" id="padTools">
+      <button class="tool-btn" id="toolHint" onclick="buyHint()">💡 <span id="lblHint">Indice</span></button>
+      <button class="tool-btn" id="toolFeather" onclick="buyFeather()"><img src="../Visuels/plume_or.png" alt=""> <span id="lblFeather">Plume de secours</span></button>
+    </div>
+
     <div class="kbd" id="kbd"></div>
   </div>
 
@@ -293,8 +372,9 @@ body.playing #screenGame.card{border:none; border-radius:0; box-shadow:none; bac
 <!-- Overlays -->
 <div class="overlay" id="modalOverlay">
   <div class="modal">
-    <img id="modalImg" alt="">
+    <img class="mimg" id="modalImg" alt="">
     <h2 id="modalTitle"></h2>
+    <div class="word-label hidden" id="modalWordLabel"></div>
     <div class="reveal-word hidden" id="modalWord"></div>
     <div class="modal-score hidden" id="modalScore"></div>
     <p id="modalText"></p>
@@ -315,71 +395,98 @@ const IMG = {
   coq_pilote:    "../Visuels/coq_pilote.png",
   coq_coeur:     "../Visuels/coq_coeur.png",
   coq_triste:    "../Visuels/coq_triste.png",
-  coq_stupefait: "../Visuels/coq_stupefait.png"
+  coq_stupefait: "../Visuels/coq_stupefait.png",
+  plume_or:      "../Visuels/plume_or.png"
 };
+</script>
+<script>
 /* =====================================================================
-   LE COQ FRANCIS — LE PENDU (HANGMAN / "POULET PENDU")
-   Memes menus, niveaux et competition que Motus. 6 erreurs = pendu.
+   LE COQ FRANCIS — CHICKENHANG (le pendu du poulailler)
+   Menus, wallet, compétition et scores : identiques aux MOTS MÊLÉS.
+   Dictionnaire : pool FR/EN mutualisé (../Dictionnaires/dict_*.js).
+   Potence : un perchoir. Francis perd une plume d'or par erreur et se
+   fait pendre au fur et à mesure.
    ===================================================================== */
+
 const WALLET_PAGE = 'https://franclecoq.github.io/Wallet/connect-wallet.html';
 const BACKEND     = 'https://mubqtnqulpyehkgubhnh.supabase.co/functions/v1';
 const COMP_LIVES  = 3;
+const GAME_KEY    = 'chickenhang';        // clé d'anti-répétition du dictionnaire
+
 const tg = window.Telegram?.WebApp;
 
 /* ---------- i18n ---------- */
 const I18N = {
   fr:{
-    gameTitle:'LE PENDU',
-    tagline:'LE COQ FRANCIS', comp:'COMPÉTITION', unique:'MOT LIBRE', wallet:'CONNECT WALLET',
-    compTitle:'COMPÉTITION', compSub:'Enchaîne les mots et gagne des $FRANC virtuels !',
+    gameTitle:'CHICKENHANG', tagline:'LE COQ FRANCIS',
+    comp:'COMPÉTITION', unique:'MOT LIBRE', wallet:'CONNECT WALLET',
+    compTitle:'COMPÉTITION', compSub:'Sauve Francis du perchoir et gagne des $FRANC virtuels !',
     resume:'REPRENDRE', neww:'NOUVELLE PARTIE', best:'🏅 TOP 3 SCORES',
     uniqueTitle:'MOT LIBRE', uniqueSub:'Choisis ta difficulté',
     menu:'Menu', retour:'Retour',
-    lives:'VIES', score:'SCORE', time:'TEMPS', errs:'ERREURS', level:'NIVEAU',
+    lives:'VIES', score:'SCORE', time:'TEMPS', errs:'PLUMES', level:'NIVEAU',
     noScores:'Aucun score pour le moment.\nJoue pour entrer dans le TOP 3 !',
-    lvl:['Facile','Moyen','Dur'], lvlInfo:['4 lettres','5 lettres','6 lettres'],
+    lvl:['Très Facile','Facile','Moyen','Dur','Très Dur'],
+    lvlInfo:['4 lettres · 7 plumes','5 lettres · 6 plumes','6 lettres · 6 plumes','7 lettres · 5 plumes','8 lettres · 5 plumes'],
     lockedTitle:'RÉSERVÉ AUX HOLDERS',
-    lockedComp:'Le mode <b>Compétition</b> est réservé aux détenteurs de <b>$FRANC</b> (ou achat d\'étoile).<br>Connecte ton wallet pour débloquer !',
-    lockedLvl:'Ce niveau est réservé aux détenteurs de <b>$FRANC</b> (ou achat d\'étoile).<br>Connecte ton wallet pour le débloquer !',
+    lockedComp:'Le mode <b>Compétition</b> est réservé aux détenteurs de <b>$FRANC</b>.<br>Connecte ton wallet pour débloquer !',
+    lockedLvl:'Ce niveau est réservé aux détenteurs de <b>$FRANC</b>.<br>Connecte ton wallet pour le débloquer !',
     btnConnect:'👛 Connecter le wallet', btnClose:'Fermer',
-    bravo:'BRAVO !', winText:'Cocorico ! Tu as sauvé Francis !',
+    bravo:'COCORICO !', winText:'Francis garde ses plumes ! Mot sauvé !',
+    hanged:'PENDU !', hangedText:'Plus une plume... Francis se balance au perchoir.',
     gameOver:'GAME OVER', gameOverText:'Plus de vies ! Mais quel parcours, champion !',
-    hanged:'PENDU !', loseTextU:'Francis a été pendu ! Le mot était :',
-    theWordWas:'Le mot était :',
+    theWordWas:'Le mot était', theWord:'Le mot',
     nextWord:'Mot suivant', replay:'Rejouer', backMenu:'Retour au menu', toMenu:'Menu',
-    alreadyTried:'⚠️ Lettre déjà proposée',
-    walletFranc:'✅ <b>$FRANC détecté !</b>', walletNo:'⚠️ Wallet connecté — aucun $FRANC',
-    confirmQuit:'Quitter la partie ? La progression sera sauvegardée.',
+    alreadyTried:'Lettre déjà proposée',
+    featherLost:'🪶 Une plume s\'envole !',
+    firstLetter:'La 1re lettre est offerte !',
+    hint:'Indice', hintUsed:'💡 Lettre révélée (-200 $FRANC)',
+    noHint:'Toutes les lettres sont déjà trouvées',
+    noFranc:'❌ Pas assez de $FRANC (200) pour un indice',
+    maxHints:'❌ Limite de 3 indices atteinte',
+    feather:'Plume de secours', featherBought:'🪶 Une plume repousse ! (-400 $FRANC)',
+    noFrancFeather:'❌ Pas assez de $FRANC (400) pour une plume',
+    featherFull:'🪶 Francis a déjà toutes ses plumes',
+    maxFeathers:'❌ Limite de 2 plumes de secours atteinte',
+    walletFranc:'✅ <b>$FRANC détecté !</b>',
     wConnected:'✅ Connecté', wNoFranc:'⚠️ Connecté — aucun $FRANC', wNotConnected:'Non connecté',
-    newScore:'🎉 Score sauvegardé', francWon:'$FRANC virtuels gagnés',
-    firstLetter:'La 1ʳᵉ lettre est offerte !',
+    newScore:'🎉 Score enregistré', francWon:'$FRANC virtuels gagnés',
     bestTime:'Meilleur temps', newBest:'🏅 Nouveau meilleur temps !'
   },
   en:{
-    gameTitle:'POULET PENDU',
-    tagline:'LE COQ FRANCIS · HANGMAN', comp:'COMPETITION', unique:'FREE WORD', wallet:'CONNECT WALLET',
-    compTitle:'COMPETITION', compSub:'Chain words and earn virtual $FRANC!',
+    gameTitle:'CHICKENHANG', tagline:'LE COQ FRANCIS',
+    comp:'COMPETITION', unique:'SINGLE WORD', wallet:'CONNECT WALLET',
+    compTitle:'COMPETITION', compSub:'Save Francis from the perch and earn virtual $FRANC!',
     resume:'RESUME', neww:'NEW GAME', best:'🏅 TOP 3 SCORES',
-    uniqueTitle:'FREE WORD', uniqueSub:'Choose your difficulty',
+    uniqueTitle:'SINGLE WORD', uniqueSub:'Choose your difficulty',
     menu:'Menu', retour:'Back',
-    lives:'LIVES', score:'SCORE', time:'TIME', errs:'MISSES', level:'LEVEL',
+    lives:'LIVES', score:'SCORE', time:'TIME', errs:'FEATHERS', level:'LEVEL',
     noScores:'No score yet.\nPlay to enter the TOP 3!',
-    lvl:['Easy','Medium','Hard'], lvlInfo:['4 letters','5 letters','6 letters'],
+    lvl:['Very Easy','Easy','Medium','Hard','Very Hard'],
+    lvlInfo:['4 letters · 7 feathers','5 letters · 6 feathers','6 letters · 6 feathers','7 letters · 5 feathers','8 letters · 5 feathers'],
     lockedTitle:'HOLDERS ONLY',
-    lockedComp:'<b>Competition</b> mode is reserved for <b>$FRANC</b> holders (or star purchase).<br>Connect your wallet to unlock!',
-    lockedLvl:'This level is reserved for <b>$FRANC</b> holders (or star purchase).<br>Connect your wallet to unlock!',
+    lockedComp:'<b>Competition</b> mode is reserved for <b>$FRANC</b> holders.<br>Connect your wallet to unlock!',
+    lockedLvl:'This level is reserved for <b>$FRANC</b> holders.<br>Connect your wallet to unlock!',
     btnConnect:'👛 Connect wallet', btnClose:'Close',
-    bravo:'BRAVO!', winText:'Cock-a-doodle-doo! You saved Francis!',
+    bravo:'COCK-A-DOODLE-DOO!', winText:'Francis keeps his feathers! Word saved!',
+    hanged:'HANGED!', hangedText:'Not a feather left... Francis is swinging from the perch.',
     gameOver:'GAME OVER', gameOverText:'Out of lives! What a run, champion!',
-    hanged:'HANGED!', loseTextU:'Francis got hanged! The word was:',
-    theWordWas:'The word was:',
+    theWordWas:'The word was', theWord:'The word',
     nextWord:'Next word', replay:'Replay', backMenu:'Back to menu', toMenu:'Menu',
-    alreadyTried:'⚠️ Letter already tried',
-    walletFranc:'✅ <b>$FRANC detected!</b>', walletNo:'⚠️ Wallet connected — no $FRANC',
-    confirmQuit:'Quit the game? Progress will be saved.',
+    alreadyTried:'Letter already tried',
+    featherLost:'🪶 A feather flies away!',
+    firstLetter:'The 1st letter is given!',
+    hint:'Hint', hintUsed:'💡 Letter revealed (-200 $FRANC)',
+    noHint:'All letters already found',
+    noFranc:'❌ Not enough $FRANC (200) for a hint',
+    maxHints:'❌ 3-hint limit reached',
+    feather:'Spare feather', featherBought:'🪶 A feather grows back! (-400 $FRANC)',
+    noFrancFeather:'❌ Not enough $FRANC (400) for a feather',
+    featherFull:'🪶 Francis already has all his feathers',
+    maxFeathers:'❌ 2-feather limit reached',
+    walletFranc:'✅ <b>$FRANC detected!</b>',
     wConnected:'✅ Connected', wNoFranc:'⚠️ Connected — no $FRANC', wNotConnected:'Not connected',
     newScore:'🎉 Score saved', francWon:'virtual $FRANC earned',
-    firstLetter:'The 1st letter is given!',
     bestTime:'Best time', newBest:'🏅 New best time!'
   }
 };
@@ -387,46 +494,54 @@ let lang = localStorage.getItem('flc_lang') || 'fr';
 function t(k){return I18N[lang][k]}
 
 /* ---------- Difficulty config ----------
-   Identique a Motus : 0 Facile (4 lettres), 1 Moyen (5), 2 Dur (6).
-   tries = nombre d'erreurs autorisees (6, comme les 6 essais de Motus). */
+   5 niveaux comme les MOTS MÊLÉS. tries = nombre de plumes de Francis
+   (= erreurs autorisées). Les 3 derniers sont réservés aux holders. */
 const LEVELS = [
-  {name:0, len:4, tries:6, holderOnly:false, stars:'⭐'},
-  {name:1, len:5, tries:6, holderOnly:true,  stars:'⭐⭐'},
+  {name:0, len:4, tries:7, holderOnly:false, stars:'⭐'},
+  {name:1, len:5, tries:6, holderOnly:false, stars:'⭐⭐'},
   {name:2, len:6, tries:6, holderOnly:true,  stars:'⭐⭐⭐'},
+  {name:3, len:7, tries:5, holderOnly:true,  stars:'⭐⭐⭐⭐'},
+  {name:4, len:8, tries:5, holderOnly:true,  stars:'⭐⭐⭐⭐⭐'},
 ];
 
 /* ---------- Holder state ---------- */
 let isHolder = JSON.parse(localStorage.getItem('flc_holder') || 'false');
 let francBalance = Number(localStorage.getItem('flc_balance') || 0);
-let unlockReason = localStorage.getItem('flc_reason') || null;
 let walletLinked = JSON.parse(localStorage.getItem('flc_walletLinked') || 'false');
+let unlockReason = localStorage.getItem('flc_reason') || null;  // "solana" | "ton" | "stars" | null
 
-/* ---------- Competition $FRANC bank (partagee avec les autres jeux) ---------- */
-const GRID_REWARD = 200;   // +200 $FRANC par mot sauve
+/* ---------- Banque $FRANC partagée avec les autres jeux de lettres ---------- */
+const HINT_COST = 200, FEATHER_COST = 400, WORD_REWARD = 200;
+const MAX_HINTS = 3, MAX_FEATHERS = 2;
 function getFranc(){
-  const stored=localStorage.getItem('flc_compPoints');
-  if(stored===null){ localStorage.setItem('flc_compPoints','200'); return 200; }
-  return Math.max(0, parseInt(stored,10)||0);
+  const s=localStorage.getItem('flc_compPoints');
+  if(s===null){localStorage.setItem('flc_compPoints','200'); return 200;}
+  return Math.max(0, parseInt(s,10)||0);
 }
-function setFranc(v){ localStorage.setItem('flc_compPoints', String(Math.max(0, Math.round(v)))); }
-function addFranc(delta){ const nv=Math.max(0, getFranc()+delta); setFranc(nv); return nv; }
+function setFranc(v){localStorage.setItem('flc_compPoints',String(Math.max(0,Math.round(v))));}
+function addFranc(d){const nv=Math.max(0,getFranc()+d); setFranc(nv); return nv;}
 
 /* =====================================================================
-   WORD HELPERS
+   MOTS — pool FR/EN mutualisé
    ===================================================================== */
 function curDict(){ return lang==="en" ? window.DICT_EN : window.DICT_FR; }
 function difficultyFor(levelIndex){
-  if(levelIndex<=0) return "facile";
-  if(levelIndex===1) return "moyen";
+  if(levelIndex<=1) return "facile";
+  if(levelIndex<=3) return "moyen";
   return "difficile";
 }
 function pickWord(len, difficulty){
   const D=curDict();
   difficulty = difficulty || "difficile";
-  const w = (D && D.pickByDifficulty) ? D.pickByDifficulty("pendu", difficulty, len)
-          : (D && D.pickFresh ? D.pickFresh("pendu", len)
-          : (D && D.pick ? D.pick(len) : null));
-  return w || (lang==="en"?"WORD":"PENDU");
+  let w = null;
+  if(D && D.pickByDifficulty)   w = D.pickByDifficulty(GAME_KEY, difficulty, len);
+  else if(D && D.pickFresh)     w = D.pickFresh(GAME_KEY, len);
+  else if(D && D.pick)          w = D.pick(len);
+  /* repli : si la longueur demandée est vide, on descend d'un cran */
+  if(!w && D && D.byLength){
+    for(let l=len-1; l>=3 && !w; l--){ const p=D.byLength(l); if(p.length) w=p[(Math.random()*p.length)|0]; }
+  }
+  return (w || (lang==="en"?"CHICKEN":"POULET")).toUpperCase();
 }
 
 /* =====================================================================
@@ -439,13 +554,16 @@ function freshGame(mode, levelIndex){
   return {
     mode, levelIndex,
     word,
-    len: lv.len,
+    len: word.length,
     maxErr: lv.tries,
     tried: {},                 // lettre -> 'good' | 'absent'
-    revealed: [word[0]],       // lettres devoilees (la 1re est offerte, comme Motus)
+    revealed: [word[0]],       // la 1re lettre est offerte (comme Motus / Le Pendu)
     errors: 0,
-    finished:false, won:false,
+    hintsUsed: 0,
+    feathersBought: 0,
+    finished:false, won:false, lifeLost:false,
     startTime:Date.now(), elapsed:0,
+    step: 0,
     lives: mode==='comp'?COMP_LIVES:null,
     francEarned: 0,
   };
@@ -459,7 +577,7 @@ const SCREENS=['screenMenu','screenComp','screenUnique','screenGame'];
 function show(id){
   SCREENS.forEach(s=>document.getElementById(s).classList.toggle('hidden', s!==id));
   document.body.classList.toggle('playing', id==='screenGame');
-  if(id!=='screenGame'){stopTimer();}
+  if(id!=='screenGame') stopTimer();
   window.scrollTo(0,0);
 }
 
@@ -488,11 +606,12 @@ function applyLang(){
   document.getElementById('backComp1').textContent=t('retour');
   document.getElementById('backUnique').textContent=t('retour');
   document.getElementById('backGame').textContent=t('menu');
+  updateHintLabel(); updateFeatherLabel();
   renderScores(); renderLevelList(); renderCompLock(); renderWalletStatus();
 }
 
 /* =====================================================================
-   WALLET / HOLDER DETECTION (identique a Motus)
+   WALLET / HOLDER DETECTION (identique aux autres jeux de lettres)
    ===================================================================== */
 async function detectHolder(){
   if(tg?.initData){
@@ -502,7 +621,7 @@ async function detectHolder(){
         body:JSON.stringify({initData:tg.initData})
       });
       const d=await res.json();
-      walletLinked = !!(d && d.walletLinked);
+      walletLinked=!!(d&&d.walletLinked);
       isHolder = !!(d && (d.unlocked ?? (d.walletLinked && d.hasFranc)));
       unlockReason = (d && d.reason) || (isHolder ? 'solana' : null);
       francBalance = isHolder ? Number(d.balance || 0) : 0;
@@ -510,17 +629,15 @@ async function detectHolder(){
       localStorage.setItem('flc_balance',String(francBalance));
       localStorage.setItem('flc_walletLinked',JSON.stringify(walletLinked));
       localStorage.setItem('flc_reason', unlockReason || '');
-    }catch(e){}
+    }catch(e){/* on garde la valeur en cache */}
   }
   renderCompLock(); renderWalletStatus(); renderLevelList();
 }
 
+/* Re-détection au retour de la page Wallet (la WebApp n'est pas rechargée). */
 let _pendingWalletReturn=false;
 function recheckWalletOnReturn(){
-  if(document.visibilityState==='visible'){
-    detectHolder();
-    _pendingWalletReturn=false;
-  }
+  if(document.visibilityState==='visible'){ detectHolder(); _pendingWalletReturn=false; }
 }
 document.addEventListener('visibilitychange', recheckWalletOnReturn);
 window.addEventListener('pageshow', recheckWalletOnReturn);
@@ -540,55 +657,63 @@ function renderWalletStatus(){
     lock.innerHTML=lockSvg(true);
     btn.classList.add('btn-comp-green');
     sub.className='wallet-sub ok';
-    if(unlockReason==='stars'){ sub.textContent='Unlocked via ⭐'; }
-    else { const sym = unlockReason==='ton' ? '💎' : '◎'; const bal = francBalance ? Number(francBalance).toLocaleString() : '?'; sub.textContent=`${t('wConnected')} ${sym} · ${bal} $FRANC`; }
+    if(unlockReason==='stars'){
+      sub.textContent='Unlocked via ⭐';
+    } else {
+      const sym = unlockReason==='ton' ? '💎' : '◎';   // 💎 TON · ◎ Solana
+      const bal = francBalance ? Number(francBalance).toLocaleString() : '?';
+      sub.textContent=`${t('wConnected')} ${sym} · ${bal} $FRANC`;
+    }
   } else if(walletLinked){
-    sub.className='wallet-sub warn'; sub.textContent=t('wNoFranc'); lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
+    sub.className='wallet-sub warn'; sub.textContent=t('wNoFranc');
+    lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
   } else {
-    sub.className='wallet-sub warn'; sub.textContent=t('wNotConnected'); lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
+    sub.className='wallet-sub warn'; sub.textContent=t('wNotConnected');
+    lock.innerHTML=lockSvg(false); btn.classList.add('btn-comp-orange');
   }
 }
 
+/* ---------- Cadenas SVG (identiques aux autres jeux) ---------- */
 function lockSvg(open){
   if(open){
     return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="unlocked">
       <path d="M7 10V7a5 5 0 0 1 9.6-2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
       <rect x="4" y="10" width="14" height="10" rx="2.5" fill="#ffffff"/>
       <circle cx="11" cy="14.5" r="1.6" fill="#15803d"/>
-      <rect x="10.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#15803d"/></svg>`;
+      <rect x="10.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#15803d"/>
+    </svg>`;
   }
   return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="locked">
     <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
     <rect x="4.5" y="10" width="15" height="10" rx="2.5" fill="#ffffff"/>
     <circle cx="12" cy="14.5" r="1.6" fill="#b45309"/>
-    <rect x="11.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#b45309"/></svg>`;
+    <rect x="11.2" y="14.5" width="1.6" height="3.2" rx="0.8" fill="#b45309"/>
+  </svg>`;
 }
-
 function renderCompLock(){
   const btn=document.getElementById('btnComp');
   const lock=document.getElementById('compLock');
   if(isHolder){ btn.classList.remove('btn-comp-orange'); btn.classList.add('btn-comp-green'); lock.innerHTML=lockSvg(true); }
   else { btn.classList.remove('btn-comp-green'); btn.classList.add('btn-comp-orange'); lock.innerHTML=lockSvg(false); }
 }
-
 let _walletOpening=false;
 function goConnectWallet(){
   if(_walletOpening) return;
-  _walletOpening=true;
-  setTimeout(()=>{ _walletOpening=false; }, 1200);
+  _walletOpening=true; setTimeout(()=>{ _walletOpening=false; }, 1200);
   _pendingWalletReturn=true;
   if(tg && typeof tg.openLink==='function'){ tg.openLink(WALLET_PAGE); }
   else { window.location.href=WALLET_PAGE; }
 }
 
 /* =====================================================================
-   COMPETITION (identique a Motus)
-   Sequence : 2x Facile (4), puis 2x Moyen (5), puis Dur (6) en boucle.
+   COMPÉTITION — séquence de mots de plus en plus durs, 3 vies
    ===================================================================== */
 function compLevelForStep(step){
   if(step<2) return 0;
   if(step<4) return 1;
-  return 2;
+  if(step<6) return 2;
+  if(step<8) return 3;
+  return 4;
 }
 function openCompetition(){
   if(!isHolder){ showLockModal('comp'); return; }
@@ -609,8 +734,8 @@ function resumeCompetition(){
   G=saved;
   G.startTime=Date.now()-(G.elapsed||0);
   startGame();
-  /* Auto-reparation : sauvegarde datant de la fin d'un mot (pendu juste
-     avant la fermeture) -> on rejoue la sequence de perte de vie. */
+  /* Auto-réparation : sauvegarde datant de la fin d'un mot (Francis pendu
+     juste avant la fermeture) -> on rejoue la séquence de perte de vie. */
   if(!G.won && G.errors>=G.maxErr){
     if(G.lifeLost){
       if(G.lives<=0){ setTimeout(()=>onGameOver(),400); }
@@ -627,12 +752,12 @@ function resumeCompetition(){
     }
   }
 }
-function loadCompSave(){ try{const s=localStorage.getItem('flc_penduSave'); return s?JSON.parse(s):null;}catch(e){return null;} }
-function saveComp(){ if(!G||G.mode!=='comp')return; localStorage.setItem('flc_penduSave',JSON.stringify(G)); }
-function clearCompSave(){localStorage.removeItem('flc_penduSave');}
+function loadCompSave(){ try{const s=localStorage.getItem('flc_chSave'); return s?JSON.parse(s):null;}catch(e){return null;} }
+function saveComp(){ if(!G||G.mode!=='comp')return; localStorage.setItem('flc_chSave',JSON.stringify(G)); }
+function clearCompSave(){localStorage.removeItem('flc_chSave');}
 
 /* ---- Meilleur temps par niveau (mode mot libre) ---- */
-const BEST_KEY='flc_penduBest';
+const BEST_KEY='flc_chBest';
 function getBestTimes(){try{return JSON.parse(localStorage.getItem(BEST_KEY)||'{}');}catch(e){return {};}}
 function saveBestTime(li, ms){
   const b=getBestTimes();
@@ -642,12 +767,12 @@ function saveBestTime(li, ms){
 function fmtTime(ms){const ts=Math.floor(ms/1000);return `${(ts/60)|0}:${String(ts%60).padStart(2,'0')}`;}
 
 /* ---- Scores (top 3) ---- */
-function getScores(){try{return JSON.parse(localStorage.getItem('flc_penduScores')||'[]');}catch(e){return [];}}
-function saveScore(total, wordsFound, franc){
+function getScores(){try{return JSON.parse(localStorage.getItem('flc_chScores')||'[]');}catch(e){return [];}}
+function saveScore(wordsSaved, franc){
   const arr=getScores();
-  arr.push({score:total, words:wordsFound, franc, date:Date.now()});
-  arr.sort((a,b)=>b.score-a.score);
-  localStorage.setItem('flc_penduScores',JSON.stringify(arr.slice(0,3)));
+  arr.push({words:wordsSaved, franc, date:Date.now()});
+  arr.sort((a,b)=>b.franc-a.franc);
+  localStorage.setItem('flc_chScores',JSON.stringify(arr.slice(0,3)));
 }
 function renderScores(){
   const box=document.getElementById('scoresList');
@@ -660,7 +785,7 @@ function renderScores(){
     return `<div class="score-row r${i+1}">
       <span class="rank">${medals[i]}</span>
       <span style="flex:1">
-        <span class="val">🪙 ${(s.franc||s.score).toLocaleString()}</span>
+        <span class="val">🪙 ${(s.franc||0).toLocaleString()}</span>
         <span class="meta"> $FRANC · ${s.words} ${wlabel}${s.words>1?'s':''} · ${ds}</span>
       </span>
     </div>`;
@@ -668,7 +793,7 @@ function renderScores(){
 }
 
 /* =====================================================================
-   FREE WORD LEVELS
+   MOT LIBRE — liste des niveaux
    ===================================================================== */
 function renderLevelList(){
   const list=document.getElementById('levelList');
@@ -679,7 +804,8 @@ function renderLevelList(){
     btn.className='lvl-btn '+(unlocked?'unlocked':'lockedb');
     const best=getBestTimes()[i];
     const bestLine = best!==undefined ? `<span class="best">🏅 ${t('bestTime')} : ${fmtTime(best)}</span>` : '';
-    btn.innerHTML=`<span class="lcol"><span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]} · ${t('lvlInfo')[i]}</span>${bestLine}</span>
+    btn.innerHTML=`<span class="lcol"><span class="ll"><span class="stars">${lv.stars}</span> ${t('lvl')[i]}</span>
+        <span class="best">${t('lvlInfo')[i]}</span>${bestLine}</span>
       <span class="lk">${lockSvg(unlocked)}</span>`;
     btn.onclick=()=>{
       if(!unlocked){showLockModal('lvl');return;}
@@ -695,11 +821,15 @@ function renderLevelList(){
    ===================================================================== */
 function startGame(){
   resetMiniPilot();
+  const fx=document.getElementById('featherFx'); if(fx) fx.innerHTML='';
+  document.getElementById('padTools').style.display=(G.mode==='comp')?'grid':'none';
+  updateHintLabel(); updateFeatherLabel();
   buildWordRow();
   buildKbd();
   renderHUD();
   renderWord();
-  drawGallows();
+  renderPlumes();
+  drawPerch(true);
   show('screenGame');
   startTimer();
 }
@@ -708,7 +838,7 @@ function buildWordRow(){
   const w=document.getElementById('wordRow');
   w.innerHTML='';
   w.style.gridTemplateColumns=`repeat(${G.len},1fr)`;
-  w.style.maxWidth=Math.min(380, G.len*62)+'px';
+  w.style.maxWidth=Math.min(400, G.len*54)+'px';
   for(let c=0;c<G.len;c++){
     const tile=document.createElement('div');
     tile.className='tile'; tile.dataset.c=c;
@@ -716,15 +846,19 @@ function buildWordRow(){
   }
 }
 
-const AZERTY = [
-  ['A','Z','E','R','T','Y','U','I','O','P'],
-  ['Q','S','D','F','G','H','J','K','L','M'],
-  ['W','X','C','V','B','N']
-];
+/* Clavier AZERTY en FR, QWERTY en EN */
+const LAYOUTS = {
+  fr:[['A','Z','E','R','T','Y','U','I','O','P'],
+      ['Q','S','D','F','G','H','J','K','L','M'],
+      ['W','X','C','V','B','N']],
+  en:[['Q','W','E','R','T','Y','U','I','O','P'],
+      ['A','S','D','F','G','H','J','K','L'],
+      ['Z','X','C','V','B','N','M']]
+};
 function buildKbd(){
   const k=document.getElementById('kbd');
   k.innerHTML='';
-  AZERTY.forEach(rowKeys=>{
+  LAYOUTS[lang].forEach(rowKeys=>{
     const kr=document.createElement('div'); kr.className='krow';
     if(rowKeys.length<10){const sp=document.createElement('span');sp.className='spacer';kr.appendChild(sp);}
     rowKeys.forEach(key=>{
@@ -750,7 +884,7 @@ function renderHUD(){
   const hud=document.getElementById('hud');
   document.getElementById('gameLvl').textContent=`${t('level')}: ${t('lvl')[G.levelIndex]} ${LEVELS[G.levelIndex].stars}`;
   let chips=`<div class="chip time"><span class="lab">${t('time')}</span><span class="num" id="hudTime">0:00</span></div>`;
-  chips+=`<div class="chip errs"><span class="lab">${t('errs')}</span><span class="num" id="hudErrs">${G.errors}/${G.maxErr}</span></div>`;
+  chips+=`<div class="chip errs"><span class="lab">${t('errs')}</span><span class="num" id="hudErrs">${G.maxErr}/${G.maxErr}</span></div>`;
   if(G.mode==='comp'){
     chips+=`<div class="chip score"><span class="lab">$FRANC</span><span class="num" id="hudScore">0</span></div>`;
     chips+=`<div class="chip lives"><span class="lab">${t('lives')}</span><span class="num" id="hudLives">${G.lives} ❤️</span></div>`;
@@ -760,18 +894,18 @@ function renderHUD(){
 }
 function updateHUD(){
   G.elapsed=Date.now()-G.startTime;
-  const ts=Math.floor(G.elapsed/1000);
-  const mm=(ts/60)|0, ss=ts%60;
+  const ts=Math.floor(G.elapsed/1000), mm=(ts/60)|0, ss=ts%60;
   const te=document.getElementById('hudTime'); if(te)te.textContent=`${mm}:${String(ss).padStart(2,'0')}`;
-  const er=document.getElementById('hudErrs'); if(er)er.textContent=`${Math.min(G.errors,G.maxErr)}/${G.maxErr}`;
+  const er=document.getElementById('hudErrs');
+  if(er)er.textContent=`${Math.max(0,G.maxErr-G.errors)}/${G.maxErr}`;
   if(G.mode==='comp'){
     const se=document.getElementById('hudScore'); if(se)se.textContent=getFranc().toLocaleString();
     const le=document.getElementById('hudLives'); if(le)le.textContent=`${G.lives} ❤️`;
   }
 }
 
-/* Word tiles: 1st letter = violet hint (offered), found letters = green.
-   On loss, missing letters are revealed in red. */
+/* Tuiles du mot : 1re lettre offerte (violet), lettres trouvées (vert),
+   à la défaite les lettres manquantes se révèlent en rouge. */
 function renderWord(revealAll){
   for(let c=0;c<G.len;c++){
     const tile=document.querySelector(`#wordRow .tile[data-c="${c}"]`);
@@ -791,18 +925,87 @@ function renderWord(revealAll){
   }
 }
 
-/* Gallows: 6 stages (g1..g5 + hanged rooster) matching 6 allowed errors */
-function drawGallows(){
-  for(let i=1;i<=5;i++){
-    const el=document.getElementById('g'+i);
-    if(el)el.classList.toggle('on', G.errors>=i);
+/* =====================================================================
+   PERCHOIR — plumage restant + progression de la pendaison
+   ===================================================================== */
+function renderPlumes(){
+  const row=document.getElementById('plumes');
+  const left=Math.max(0, G.maxErr-G.errors);
+  let html='';
+  for(let i=0;i<G.maxErr;i++){
+    html+=`<img src="${IMG.plume_or}" class="${i<left?'':'off'}" alt="">`;
   }
-  const coq=document.getElementById('hangedCoq');
-  if(coq)coq.classList.toggle('on', G.errors>=6);
+  html+=`<span class="pcount">${left}/${G.maxErr}</span>`;
+  row.innerHTML=html;
+}
+
+/* Position de Francis : perché sur la barre -> pendu au nœud coulant.
+   Interpolation continue : il glisse le long du perchoir puis tombe. */
+const PERCH_POS = {x:44,  y:0};
+const NOOSE_POS = {x:146, y:106};
+const BAR_Y = 70, ROPE_MIN = 6, ROPE_MAX = 30;
+const COQ_SIZE = 60, VB_W = 240, VB_H = 196;
+
+function drawPerch(instant){
+  const stage=document.getElementById('perchStage');
+  const rope=document.getElementById('rope');
+  const noose=document.getElementById('noose');
+  const coq=document.getElementById('perchCoq');
+  if(!stage||!rope||!noose||!coq)return;
+
+  const tt=Math.max(0, Math.min(1, G.errors/G.maxErr));
+  const hanged = G.errors>=G.maxErr;
+
+  /* la corde descend, le nœud coulant se forme */
+  const len = ROPE_MIN + (ROPE_MAX-ROPE_MIN)*tt;
+  rope.setAttribute('y2', (BAR_Y+len).toFixed(1));
+  rope.style.opacity = tt>0 ? 1 : 0;
+  noose.setAttribute('cy', (BAR_Y+len+11.5).toFixed(1));
+  noose.style.opacity = tt>=0.3 ? 1 : 0;
+
+  /* Francis glisse (x linéaire) puis chute (y quadratique) */
+  const x = PERCH_POS.x + (NOOSE_POS.x-PERCH_POS.x)*tt;
+  const y = PERCH_POS.y + (NOOSE_POS.y-PERCH_POS.y)*(tt*tt);
+  coq.style.transition = instant ? 'none' : '';
+  coq.setAttribute('x', x.toFixed(1));
+  coq.setAttribute('y', y.toFixed(1));
+  if(instant){ void coq.getBoundingClientRect(); coq.style.transition=''; }
+
+  /* humeur de Francis selon son plumage restant */
+  let src = IMG.coq_pilote;
+  if(hanged) src = IMG.coq_triste;
+  else if(tt>=0.6) src = IMG.coq_triste;
+  else if(tt>0)    src = IMG.coq_stupefait;
+  coq.setAttribute('href', src);
+  coq.setAttributeNS('http://www.w3.org/1999/xlink','href', src);
+
+  stage.classList.toggle('hanged', hanged);
+}
+
+/* Une plume d'or se détache de Francis et virevolte jusqu'au sol. */
+function flyFeather(){
+  const fx=document.getElementById('featherFx');
+  const coq=document.getElementById('perchCoq');
+  if(!fx||!coq)return;
+  const cx=(parseFloat(coq.getAttribute('x'))+COQ_SIZE/2)/VB_W*100;
+  const cy=(parseFloat(coq.getAttribute('y'))+COQ_SIZE*0.55)/VB_H*100;
+  const img=document.createElement('img');
+  img.src=IMG.plume_or; img.alt='';
+  img.style.left=cx+'%';
+  img.style.top=cy+'%';
+  img.style.animationDelay=(Math.random()*90)+'ms';
+  fx.appendChild(img);
+  setTimeout(()=>img.remove(), 2600);
+}
+function shakePerch(){
+  const st=document.getElementById('perchStage');
+  if(!st)return;
+  st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake');
+  setTimeout(()=>st.classList.remove('shake'), 500);
 }
 
 /* =====================================================================
-   INPUT — propose a letter
+   INPUT — proposer une lettre
    ===================================================================== */
 function proposeLetter(ch){
   if(!G || G.finished)return;
@@ -813,7 +1016,6 @@ function proposeLetter(ch){
     G.tried[ch]='good';
     if(G.revealed.indexOf(ch)<0)G.revealed.push(ch);
     renderWord(); refreshKbd();
-    // pop the newly revealed tiles
     for(let c=0;c<G.len;c++){
       if(G.word[c]===ch){
         const tile=document.querySelector(`#wordRow .tile[data-c="${c}"]`);
@@ -822,48 +1024,86 @@ function proposeLetter(ch){
     }
     if(navigator.vibrate)navigator.vibrate(30);
     persist(); updateHUD();
-    // win = every letter of the word revealed
     const allFound=G.word.split('').every(l=>G.revealed.indexOf(l)>=0);
     if(allFound){ setTimeout(()=>onWin(), 500); }
   } else {
     G.tried[ch]='absent';
     G.errors++;
-    drawGallows(); refreshKbd(); updateHUD();
+    flyFeather(); shakePerch();
+    drawPerch(); renderPlumes(); refreshKbd(); updateHUD();
     setMiniCoq(IMG.coq_stupefait, 4000);
     if(navigator.vibrate)navigator.vibrate(80);
     persist();
-    if(G.errors>=G.maxErr){ setTimeout(()=>onHanged(), 900); }
+    if(G.errors>=G.maxErr){ setTimeout(()=>onHanged(), 1100); }
   }
 }
 
 /* =====================================================================
-   WIN / LOSE
+   OUTILS (compétition) — indice & plume de secours
+   ===================================================================== */
+function buyHint(){
+  if(!G || G.mode!=='comp' || G.finished)return;
+  if(G.hintsUsed>=MAX_HINTS){toast(t('maxHints'));return;}
+  if(getFranc()<HINT_COST){toast(t('noFranc'));return;}
+  const missing=[...new Set(G.word.split('').filter(l=>G.revealed.indexOf(l)<0))];
+  if(!missing.length){toast(t('noHint'));return;}
+  const ch=missing[(Math.random()*missing.length)|0];
+  G.tried[ch]='good'; G.revealed.push(ch);
+  G.hintsUsed++; addFranc(-HINT_COST);
+  renderWord(); refreshKbd(); updateHintLabel(); updateHUD(); persist();
+  toast(t('hintUsed'));
+  const allFound=G.word.split('').every(l=>G.revealed.indexOf(l)>=0);
+  if(allFound){ setTimeout(()=>onWin(), 500); }
+}
+function updateHintLabel(){
+  const lbl=document.getElementById('lblHint');
+  if(!lbl)return;
+  lbl.textContent = (G && G.mode==='comp') ? `${t('hint')} ${HINT_COST} (${G.hintsUsed}/${MAX_HINTS})` : t('hint');
+}
+
+function buyFeather(){
+  if(!G || G.mode!=='comp' || G.finished)return;
+  if(G.errors<=0){toast(t('featherFull'));return;}
+  if(G.feathersBought>=MAX_FEATHERS){toast(t('maxFeathers'));return;}
+  if(getFranc()<FEATHER_COST){toast(t('noFrancFeather'));return;}
+  G.errors--; G.feathersBought++; addFranc(-FEATHER_COST);
+  drawPerch(); renderPlumes(); updateFeatherLabel(); updateHUD(); persist();
+  setMiniCoq(IMG.coq_coeur, 4000);
+  toast(t('featherBought'));
+}
+function updateFeatherLabel(){
+  const lbl=document.getElementById('lblFeather');
+  if(!lbl)return;
+  lbl.textContent = (G && G.mode==='comp') ? `${t('feather')} ${FEATHER_COST} (${G.feathersBought}/${MAX_FEATHERS})` : t('feather');
+}
+
+/* =====================================================================
+   VICTOIRE / DÉFAITE
    ===================================================================== */
 function onWin(){
   stopTimer();
-  G.won=true;
+  G.won=true; G.finished=true;
   G.elapsed=Date.now()-G.startTime;
   setMiniCoq(IMG.coq_coeur, 30000);
   if(G.mode==='comp'){
-    addFranc(GRID_REWARD);
-    G.francEarned=(G.francEarned||0)+GRID_REWARD;
+    addFranc(WORD_REWARD);
+    G.francEarned=(G.francEarned||0)+WORD_REWARD;
     persist();
     showModal({
       img:IMG.coq_coeur, cls:'win', title:t('bravo'),
-      word:G.word, score:`+${GRID_REWARD} $FRANC`,
+      word:G.word, wordLabel:t('theWord'), score:`+${WORD_REWARD} $FRANC`,
       text:t('winText'),
       btn1:t('nextWord'), btn2:t('toMenu'),
       action1:()=>{ closeModal(); compNextWord(); },
       action2:()=>finishCompetition()
     });
   } else {
-    /* mot libre : on enregistre le meilleur temps du niveau */
     const isRecord=saveBestTime(G.levelIndex, G.elapsed);
     const best=getBestTimes()[G.levelIndex];
     const timeLine=`⏱ ${fmtTime(G.elapsed)}` + (isRecord ? `<br>${t('newBest')}` : `<br>🏅 ${t('bestTime')} : ${fmtTime(best)}`);
     showModal({
       img:IMG.coq_coeur, cls:'win', title:t('bravo'),
-      word:G.word, text:`${t('winText')}<br>${timeLine}`,
+      word:G.word, wordLabel:t('theWord'), text:`${t('winText')}<br>${timeLine}`,
       btn1:t('replay'), btn2:t('backMenu'),
       action1:()=>{G=freshGame('unique',G.levelIndex); closeModal(); startGame();},
       action2:()=>{closeModal(); renderLevelList(); show('screenUnique');}
@@ -872,66 +1112,64 @@ function onWin(){
 }
 
 function onHanged(){
-  renderWord(true);   // reveal missing letters in red
+  stopTimer();
+  renderWord(true);
+  setMiniCoq(IMG.coq_triste, 30000);
   if(G.mode==='comp'){ loseLifeComp(); }
   else { onLoseUnique(); }
 }
 
 function onLoseUnique(){
-  stopTimer();
   G.finished=true;
-  setMiniCoq(IMG.coq_triste, 30000);
   showModal({
     img:IMG.coq_triste, cls:'lose', title:t('hanged'),
-    word:G.word, wordLabel:t('loseTextU'),
-    text:'',
+    word:G.word, wordLabel:t('theWordWas'), text:t('hangedText'),
     btn1:t('replay'), btn2:t('backMenu'),
     action1:()=>{G=freshGame('unique',G.levelIndex); closeModal(); startGame();},
-    action2:()=>{closeModal(); show('screenUnique');}
+    action2:()=>{closeModal(); renderLevelList(); show('screenUnique');}
   });
 }
 
-/* competition: losing a word costs a life */
 function loseLifeComp(){
-  G.lifeLost=true;   /* marque la vie comme decomptee (pour la reprise) */
-  G.lives--;
-  updateHUD();
-  flashLifeLost();
+  G.lives--; G.lifeLost=true;
   persist();
-  if(G.lives<=0){ setTimeout(()=>onGameOver(), 950); return; }
-  setTimeout(()=>{
-    showModal({
-      img:IMG.coq_triste, cls:'lose', title:'-1 ❤️',
-      word:G.word, wordLabel:t('theWordWas'),
-      text:`${G.lives} ❤️`,
-      btn1:t('nextWord'), btn2:t('toMenu'),
-      action1:()=>{ closeModal(); compNextWord(); },
-      action2:()=>finishCompetition()
-    });
-  }, 950);
+  flashLifeLost();
+  updateHUD();
+  if(G.lives<=0){ setTimeout(()=>onGameOver(), 1000); return; }
+  setTimeout(()=>showModal({
+    img:IMG.coq_triste, cls:'lose', title:'-1 ❤️',
+    word:G.word, wordLabel:t('theWordWas'),
+    text:`${G.lives} ❤️`,
+    btn1:t('nextWord'), btn2:t('toMenu'),
+    action1:()=>{ closeModal(); compNextWord(); },
+    action2:()=>finishCompetition()
+  }), 1000);
 }
 
+/* Mot suivant en compétition : on garde vies / $FRANC gagnés / chrono. */
 function compNextWord(){
-  G.step=(G.step||0)+1;
-  const li=compLevelForStep(G.step);
+  const step=(G.step||0)+1;
+  const li=compLevelForStep(step);
   const lv=LEVELS[li];
   const word=pickWord(lv.len, difficultyFor(li));
-  G.levelIndex=li; G.len=lv.len; G.maxErr=lv.tries;
-  G.word=word;
-  G.tried={}; G.revealed=[word[0]]; G.errors=0;
-  G.finished=false; G.won=false;
-  G.lifeLost=false;
-  startGame();
+  G.step=step;
+  G.levelIndex=li;
+  G.word=word; G.len=word.length; G.maxErr=lv.tries;
+  G.tried={}; G.revealed=[word[0]];
+  G.errors=0; G.hintsUsed=0; G.feathersBought=0;
+  G.finished=false; G.won=false; G.lifeLost=false;
+  G.startTime=Date.now(); G.elapsed=0;
   persist();
+  startGame();
+  toast(t('firstLetter'));
 }
 
 function onGameOver(){
+  G.finished=true;
   const francRun=(G.francEarned||0);
-  const wins=Math.round(francRun/GRID_REWARD);
-  saveScore(francRun, wins, francRun);
+  const wordsSaved=Math.round(francRun/WORD_REWARD);
+  saveScore(wordsSaved, francRun);
   clearCompSave();
-  stopTimer();
-  setMiniCoq(IMG.coq_triste, 30000);
   showModal({
     img:IMG.coq_triste, cls:'lose', title:t('gameOver'),
     word:G.word, wordLabel:t('theWordWas'),
@@ -945,48 +1183,44 @@ function onGameOver(){
 
 function finishCompetition(){
   const francRun=(G.francEarned||0);
-  const wins=Math.round(francRun/GRID_REWARD);
-  saveScore(francRun, wins, francRun);
+  const wordsSaved=Math.round(francRun/WORD_REWARD);
+  saveScore(wordsSaved, francRun);
   clearCompSave();
   closeModal();
-  toast(`${t('newScore')} · ${francRun.toLocaleString()} $FRANC`);
-  renderScores();
-  show('screenComp');
+  toast(`${t('newScore')} · ${francRun.toLocaleString()} ${t('francWon')}`);
+  renderScores(); show('screenComp');
   document.getElementById('btnResume').style.display='none';
 }
 
 /* =====================================================================
-   LIFE LOSS ANIMATION
+   MINI COQ (HUD)
    ===================================================================== */
-let miniTimer=null, _miniState=null;
+let miniTimer=null;
 function flashLifeLost(){
   const f=document.getElementById('lifeFlash');
-  document.getElementById('lifeTxt').textContent=`-1 ❤️ · ${G.lives}`;
+  document.getElementById('lifeTxt').textContent=`-1 ❤️ · ${Math.max(0,G.lives)}`;
   f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
   setTimeout(()=>f.classList.remove('show'),900);
-  setMiniCoq(IMG.coq_triste, 30000);
+  setMiniCoq(IMG.coq_triste,30000);
 }
 function setMiniCoq(src, ms){
-  _miniState = (src===IMG.coq_pilote) ? null : src;
-  const mini=document.getElementById('miniPilote'); if(mini)mini.src=src;
+  const m=document.getElementById('miniPilote'); if(m)m.src=src;
   if(miniTimer)clearTimeout(miniTimer);
-  miniTimer=setTimeout(()=>{ _miniState=null; const m=document.getElementById('miniPilote'); if(m)m.src=IMG.coq_pilote; miniTimer=null; }, ms);
+  miniTimer=setTimeout(()=>{const mm=document.getElementById('miniPilote'); if(mm)mm.src=IMG.coq_pilote; miniTimer=null;}, ms);
 }
 function resetMiniPilot(){
   if(miniTimer){clearTimeout(miniTimer);miniTimer=null;}
-  _miniState=null;
-  const mini=document.getElementById('miniPilote'); if(mini)mini.src=IMG.coq_pilote;
+  const m=document.getElementById('miniPilote'); if(m)m.src=IMG.coq_pilote;
 }
-
 function tapCoq(){
-  const img=document.getElementById('miniPilote');
-  if(!img)return;
+  const img=document.getElementById('miniPilote'); if(!img)return;
   img.classList.remove('coq-press'); void img.offsetWidth; img.classList.add('coq-press');
   const wrap=document.getElementById('coqHearts');
   const N=4+Math.floor(Math.random()*2);
   for(let i=0;i<N;i++){
     const h=document.createElement('span'); h.className='heart'; h.textContent='❤️';
-    h.style.left=(20+Math.random()*60)+'%'; h.style.animationDelay=(i*70)+'ms'; h.style.fontSize=(11+Math.random()*8)+'px';
+    h.style.left=(20+Math.random()*60)+'%'; h.style.animationDelay=(i*70)+'ms';
+    h.style.fontSize=(11+Math.random()*8)+'px';
     wrap.appendChild(h); setTimeout(()=>h.remove(),1500);
   }
 }
@@ -998,56 +1232,47 @@ let _a1=null,_a2=null;
 function showModal({img,cls,title,word,wordLabel,score,text,btn1,btn2,action1,action2}){
   document.getElementById('modalImg').src=img;
   const tt=document.getElementById('modalTitle'); tt.className=cls||''; tt.textContent=title;
-  const wd=document.getElementById('modalWord');
-  if(word){ wd.innerHTML=(wordLabel?`<span style="font-size:11px;color:var(--muted);display:block;letter-spacing:1px;margin-bottom:2px">${wordLabel}</span>`:'')+word; wd.classList.remove('hidden'); }
-  else wd.classList.add('hidden');
+  const wl=document.getElementById('modalWordLabel'), wd=document.getElementById('modalWord');
+  if(word){
+    wd.textContent=word; wd.classList.remove('hidden');
+    wl.textContent=wordLabel||''; wl.classList.toggle('hidden', !wordLabel);
+  } else { wd.classList.add('hidden'); wl.classList.add('hidden'); }
   const sc=document.getElementById('modalScore');
-  if(score){sc.textContent=score; sc.classList.remove('hidden');}else{sc.classList.add('hidden');}
+  if(score){sc.textContent=score;sc.classList.remove('hidden');}else{sc.classList.add('hidden');}
   document.getElementById('modalText').innerHTML=text||'';
   document.getElementById('modalBtn1').textContent=btn1;
   document.getElementById('modalBtn2').textContent=btn2;
-  _a1=action1; _a2=action2;
+  _a1=action1;_a2=action2;
   document.getElementById('modalOverlay').classList.add('show');
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
 function modalAction1(){if(_a1)_a1();}
 function modalAction2(){if(_a2)_a2();}
-
 function showLockModal(kind){
   showModal({
     img:IMG.coq_triste, cls:'locked', title:t('lockedTitle'),
-    text: kind==='comp'? t('lockedComp') : t('lockedLvl'),
+    text: kind==='comp'?t('lockedComp'):t('lockedLvl'),
     btn1:t('btnConnect'), btn2:t('btnClose'),
-    action1:()=>{closeModal(); goConnectWallet();},
-    action2:()=>closeModal()
+    action1:()=>{closeModal();goConnectWallet();}, action2:()=>closeModal()
   });
 }
 
 /* =====================================================================
-   QUIT / TIMER / PERSIST / TOAST
+   TIMER / PERSIST / QUIT / TOAST
    ===================================================================== */
-function quitGame(){
-  if(G && G.mode==='comp'){ persist(); show('screenMenu'); }
-  else { show('screenUnique'); }
-}
 function startTimer(){ stopTimer(); timerInt=setInterval(()=>{ if(G&&!G.finished){G.elapsed=Date.now()-G.startTime; updateHUD();} },1000); }
 function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null;}}
 function persist(){ if(G && G.mode==='comp'){G.elapsed=Date.now()-G.startTime; saveComp();} }
-
+function quitGame(){
+  closeModal();
+  if(G && G.mode==='comp'){ persist(); show('screenMenu'); }
+  else { renderLevelList(); show('screenUnique'); }
+}
 let toastT=null;
 function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
   clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200);
 }
-
-/* Physical keyboard support */
-window.addEventListener('keydown',(e)=>{
-  if(document.getElementById('screenGame').classList.contains('hidden'))return;
-  if(document.getElementById('modalOverlay').classList.contains('show'))return;
-  const k=e.key;
-  if(/^[a-zA-Z]$/.test(k)){proposeLetter(k.toUpperCase());}
-});
 
 /* =====================================================================
    INIT
@@ -1056,10 +1281,19 @@ window.addEventListener('load',()=>{
   document.getElementById('brandImg').src=IMG.coq_pilote;
   document.getElementById('modalImg').src=IMG.coq_coeur;
   document.getElementById('lifeImg').src=IMG.coq_triste;
-  if(tg){tg.ready(); tg.expand();}
+  document.getElementById('miniPilote').src=IMG.coq_pilote;
+  if(tg){tg.ready();tg.expand();}
   setLang(lang);
   renderCompLock(); renderWalletStatus(); renderLevelList(); renderScores();
   detectHolder();
+});
+
+/* clavier physique (desktop) */
+window.addEventListener('keydown',(e)=>{
+  if(document.getElementById('screenGame').classList.contains('hidden'))return;
+  if(document.getElementById('modalOverlay').classList.contains('show'))return;
+  const k=e.key.toUpperCase();
+  if(/^[A-Z]$/.test(k)) proposeLetter(k);
 });
 </script>
 </body>
