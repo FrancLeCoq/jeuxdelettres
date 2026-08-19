@@ -158,22 +158,29 @@ def expand_hunspell(dic_path, aff_path):
 # Lexiques de reference
 # --------------------------------------------------------------------------
 def build_reference(lang):
-    """-> (mots simples, {forme collee: graphie d'origine}, {forme sans oe: bonne forme})"""
+    """-> (mots simples, mots simples des sources sures, {forme collee: graphie},
+           {forme sans oe: bonne forme})
+
+    `frforms.csv` souffre par endroits du meme defaut de ligature que nos pools
+    ("uvre" y figure pour "oeuvre"). Il compte pour attester un mot ordinaire,
+    mais pas pour attester une forme que l'on sait mutilee : cela demande une
+    source indemne.
+    """
     paths = {name: fetch(name, url) for name, url in SOURCES[lang]}
     words = []
     if lang == 'fr':
-        words.append(expand_hunspell(paths['hunspell.dic'], paths['hunspell.aff']))
+        words.append((expand_hunspell(paths['hunspell.dic'], paths['hunspell.aff']), True))
         with open(paths['frwords.json'], encoding='utf-8') as fh:
-            words.append(json.load(fh))
-        words.append(list(read_lines(paths['frforms.csv'])))
+            words.append((json.load(fh), True))
+        words.append((list(read_lines(paths['frforms.csv'])), False))
     else:
-        words.append(list(read_lines(paths['enwords.txt'])))
+        words.append((list(read_lines(paths['enwords.txt'])), True))
         with open(paths['enwords.json'], encoding='utf-8') as fh:
-            words.append(json.load(fh))
-        words.append([l.split('/')[0] for l in read_lines(paths['en.dic'])])
+            words.append((json.load(fh), True))
+        words.append(([l.split('/')[0] for l in read_lines(paths['en.dic'])], True))
 
-    simple, glued, ligature = set(), {}, {}
-    for group in words:
+    simple, strict, glued, ligature = set(), set(), {}, {}
+    for group, is_strict in words:
         for raw in group:
             raw = raw.strip()
             if not raw:
@@ -181,16 +188,21 @@ def build_reference(lang):
             n = norm(raw)
             if re.fullmatch(r'[A-Z]+', n):
                 simple.add(n)
+                if is_strict:
+                    strict.add(n)
             elif re.fullmatch(r"[A-Z][A-Z' \-]*", n):   # locution, mot compose, elision
                 key = re.sub(r'[^A-Z]', '', n)
                 if key and key not in glued:
                     glued[key] = raw
+            # la table des ligatures se nourrit de toutes les sources : elle ne
+            # fait qu'associer une forme amputee a sa graphie complete, laquelle
+            # est de toute facon revalidee ensuite
             if 'œ' in raw or 'Œ' in raw:
                 # graphie mutilee : la ligature avait ete effacee, pas transcrite
                 mangled = norm(re.sub('[œŒ]', '', raw))
                 if re.fullmatch(r'[A-Z]+', mangled) and mangled != n:
                     ligature.setdefault(mangled, n)
-    return simple, glued, ligature
+    return simple, strict, glued, ligature
 
 
 # --------------------------------------------------------------------------
@@ -242,38 +254,54 @@ def clean(lang, check_only):
     js_path = os.path.join(ROOT, 'dict_%s.js' % lang)
     txt_path = os.path.join(ROOT, 'mots_faciles_%s.txt' % lang)
     src, pools = load_dict(js_path)
-    simple, glued, ligature = build_reference(lang)
+    simple, strict, glued, ligature = build_reference(lang)
 
-    stats = {'glued': [], 'ligature': [], 'unknown': [], 'repaired': []}
+    stats = {'glued': [], 'ligature': [], 'unknown': [], 'repaired': [], 'ligature_perdu': []}
     known = set(pools['answers'])
 
     def keep(word):
-        if word in simple:
-            return word
-        if word in ligature:                 # CUR -> COEUR, UVRE -> OEUVRE
-            fixed = ligature[word]
+        """-> liste des mots a garder a la place de `word` (0, 1 ou 2 mots)."""
+        out = []
+        fixed = ligature.get(word)
+        # une forme que l'on sait mutilee ne se garde telle quelle que si une
+        # source indemne l'atteste par ailleurs (MURS, DEME, ECURER existent
+        # vraiment ; UVRE non, ce n'est que "oeuvre" ampute)
+        if word in (strict if fixed else simple):
+            out.append(word)
+
+        # Ligature "oe" effacee a la generation : CUR pour coeur, UVRE pour
+        # oeuvre. On retablit la graphie en toutes lettres. Attention, la forme
+        # mutilee peut coincider avec un vrai mot (moeurs -> MURS, oedeme ->
+        # DEME) : on garde alors les deux, ce sont bien deux mots differents.
+        if fixed:
             stats['ligature'].append((word, fixed))
-            # le pool est contractuellement limite a 3-9 lettres : retablir la
-            # ligature rallonge le mot de deux lettres et peut l'en faire sortir
-            if fixed in simple and fixed not in known and MINLEN <= len(fixed) <= MAXLEN:
-                stats['repaired'].append((word, fixed))
-                known.add(fixed)
-                return fixed
-            return None
-        if word in glued:
-            stats['glued'].append((word, glued[word]))
-        else:
-            stats['unknown'].append(word)
-        return None
+            if fixed not in simple:
+                stats['ligature_perdu'].append((word, fixed, 'graphie non attestee'))
+            elif not (MINLEN <= len(fixed) <= MAXLEN):
+                # le pool est contractuellement limite a 3-9 lettres et
+                # retablir la ligature rallonge le mot de deux lettres
+                stats['ligature_perdu'].append((word, fixed, '%d lettres' % len(fixed)))
+            else:
+                if fixed not in known:
+                    stats['repaired'].append((word, fixed))
+                    known.add(fixed)
+                out.append(fixed)
+
+        if not out:
+            if word in glued:
+                stats['glued'].append((word, glued[word]))
+            else:
+                stats['unknown'].append(word)
+        return out
 
     cleaned = {}
     for key in ('answers', 'easy'):
         out, seen = [], set()
         for word in pools[key]:
-            fixed = keep(word)
-            if fixed and fixed not in seen:
-                seen.add(fixed)
-                out.append(fixed)
+            for fixed in keep(word):
+                if fixed not in seen:
+                    seen.add(fixed)
+                    out.append(fixed)
         cleaned[key] = out
 
     # easy doit rester un sous-ensemble de answers
@@ -285,8 +313,16 @@ def clean(lang, check_only):
         before, after = len(pools[key]), len(cleaned[key])
         print('  %-8s %6d -> %6d  (%d retires, %.1f%%)'
               % (key, before, after, before - after, 100.0 * (before - after) / before))
-    print('  dont locutions collees : %d   ligature oe mutilee : %d (%d graphies retablies)   inconnus : %d'
-          % (len(stats['glued']), len(stats['ligature']), len(stats['repaired']), len(stats['unknown'])))
+    uniq = lambda rows: len(set(rows))
+    print('  locutions collees retirees : %d   inconnus retires : %d'
+          % (uniq(stats['glued']), uniq(stats['unknown'])))
+    print('  ligature oe mutilee : %d mots   -> %d graphies retablies, %d hors pool 3-9 lettres'
+          % (uniq(stats['ligature']), uniq(stats['repaired']), uniq(stats['ligature_perdu'])))
+    if stats['repaired']:
+        print('    retablis : ' + ', '.join('%s->%s' % p for p in sorted(set(stats['repaired']))))
+    if stats['ligature_perdu']:
+        print('    hors pool : ' + ', '.join('%s (%s)' % (f, why)
+                                             for _, f, why in sorted(set(stats['ligature_perdu']))))
     for length in range(3, 10):
         n = sum(1 for w in cleaned['answers'] if len(w) == length)
         e = sum(1 for w in cleaned['easy'] if len(w) == length)
